@@ -9,16 +9,21 @@ html, body {
 
 #container {
 	display: -webkit-flex;
-	-webkit-flex-flow:; row wrap;
+	-webkit-flex-flow: row wrap;
 	min-height: 100%;
 }
 
-#song-list {
-	background-color: blue;
+#header {
+	background-color: red;
 	-webkit-flex: 1 100%;
 }
 
-#now-playing {
+#left-content {
+	background-color: blue;
+	-webkit-flex: 1 auto;
+}
+
+#right-content {
 	background-color: green;
-	-webkit-flex: 0 1 400px;
+	-webkit-flex: 0 400px;
 }
