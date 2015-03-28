@@ -1,7 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var multer = require('multer');
-// var Song = require('../models/song');
+var Song = require('../models/song');
 var handleErr = require('../utils/utils').handleErr;
 
 var router = express.Router();
@@ -23,8 +23,8 @@ router.get('/:id', function(req, res) {
 router.post('/', multer({ dest: './songs/' }), function(req, res) {
   req.body.created = new Date();
   var artName = req.files.art.name;
-  var midiName = req.files.
-  console.log(req.files);
+  var midiName = req.files.midi.name;
+  
   // new Song(req.body).save(function(err, article) {
   //   if (err)
   //     return handleErr(err, 'article:33');
