@@ -2,3 +2,23 @@
 	margin: 0;
 	padding: 0;
 }
+
+html, body {
+	min-height: 100%;
+}
+
+#container {
+	display: -webkit-flex;
+	-webkit-flex-flow:; row wrap;
+	min-height: 100%;
+}
+
+#song-list {
+	background-color: blue;
+	-webkit-flex: 1 100%;
+}
+
+#now-playing {
+	background-color: green;
+	-webkit-flex: 0 1 400px;
+}
