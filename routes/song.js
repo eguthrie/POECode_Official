@@ -25,13 +25,13 @@ router.get('/:id', function(req, res) {
 });
 
 // add a new song
-router.post('/', multer({ dest: './songs/' }), function(req, res) {
+router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   var song = {};
   song.time = new Date();
   song.name = req.body.name;
   song.artist = req.body.artist;
   if (!req.files.art) req.files.art.path = "songs/default.png";
-  song.artPath = req.files.art.path;
+  song.artPath = "songs/"+req.files.art.name;
 
   if (!req.files.midi) {
     res.end("You must submit a midi file");
