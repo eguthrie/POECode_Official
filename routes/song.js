@@ -1,6 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var Song = require('../models/song');
+var multer = require('multer');
+// var Song = require('../models/song');
 var handleErr = require('../utils/utils').handleErr;
 
 var router = express.Router();
@@ -19,16 +20,18 @@ router.get('/:id', function(req, res) {
 });
 
 // add a new song
-// router.post('/', function(req, res) {
-//   req.body.created = new Date();
+router.post('/', multer({ dest: './songs/' }), function(req, res) {
+  req.body.created = new Date();
+  var artName = req.files.art.name;
+  var midiName = req.files.
+  console.log(req.files);
+  // new Song(req.body).save(function(err, article) {
+  //   if (err)
+  //     return handleErr(err, 'article:33');
 
-//   new Song(req.body).save(function(err, article) {
-//     if (err)
-//       return handleErr(err, 'article:33');
-
-//     res.json(article);
-//   });
-// });
+  //   res.json(article);
+  // });
+});
 
 // // delete an article by id
 // router.delete('/:id', function(req, res) {
