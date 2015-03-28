@@ -8,7 +8,13 @@
 </form>
 <div id="container">
 	<div id="header">header</div>
-	<div id="left-content">song list</div>
+	<div id="left-content">
+		<ul>
+			{{#each songs}}
+				{{> song}}
+			{{/each}}
+		</ul>
+	</div>
 	<div id="right-content">now playing</div>
 </div>
 	<!-- <form id="uploadForm" enctype="multipart/form-data" action="/midi" method="post">
