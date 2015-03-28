@@ -5,11 +5,16 @@ var Song = require('../models/song');
 var handleErr = require('../utils/utils').handleErr;
 
 var router = express.Router();
-
-router.get('/', function(req, res) {
+router.getSongs = function(callback) {
   Song.find().sort({ name: 1 }).exec(function(err, songs) {
     if (err)
       return handleErr(err, 'song:11');
+    callback(songs);
+  });
+}
+
+router.get('/', function(req, res) {
+  router.getSongs(function() {
     res.json(songs);
   });
 });
@@ -25,15 +30,21 @@ router.post('/', multer({ dest: './songs/' }), function(req, res) {
   song.time = new Date();
   song.name = req.body.name;
   song.artist = req.body.artist;
+  if (!req.files.art) req.files.art.path = "songs/default.png";
   song.artPath = req.files.art.path;
-  song.midiPath = req.files.midi.path;
-  
-  new Song(song).save(function(err, newSong) {
-    if (err)
-      return handleErr(err, 'song:33');
 
-    res.render("partials/song", {song: newSong, layout: false});
-  });
+  if (!req.files.midi) {
+    res.end("You must submit a midi file");
+  } else {
+    song.midiPath = req.files.midi.path;
+    
+    new Song(song).save(function(err, newSong) {
+      if (err)
+        return handleErr(err, 'song:33');
+
+      res.render("partials/song", {song: newSong, layout: false});
+    });
+  }
 });
 
 // // delete an article by id
