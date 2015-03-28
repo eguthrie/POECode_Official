@@ -8,7 +8,7 @@ var router = express.Router();
 router.getSongs = function(callback) {
   Song.find().sort({ name: 1 }).exec(function(err, songs) {
     if (err)
-      return handleErr(err, 'song:12');
+      return handleErr(err, 'song:11');
     callback(songs);
   });
 }
