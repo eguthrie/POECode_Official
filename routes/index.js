@@ -1,5 +1,9 @@
+var song = require('./song.js');
+
 module.exports = {
 	home: function(req, res) {
-		res.render('home');
+		song.getSongs(function(songs) {
+			res.render('home', songs);
+		});
 	}
 }
