@@ -41,9 +41,7 @@ router.post('/', multer({ dest: './songs/' }), function(req, res) {
     new Song(song).save(function(err, newSong) {
       if (err)
         return handleErr(err, 'song:33');
-
-      newSong.layout = false;
-      res.render("partials/song", newSong);
+      res.redirect("/");
     });
   }
 });
