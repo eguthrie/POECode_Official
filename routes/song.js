@@ -8,7 +8,7 @@ var router = express.Router();
 router.getSongs = function(callback) {
   Song.find().sort({ name: 1 }).exec(function(err, songs) {
     if (err)
-      return handleErr(err, 'song:11');
+      return handleErr(err, 'song:12');
     callback(songs);
   });
 }
@@ -42,7 +42,8 @@ router.post('/', multer({ dest: './songs/' }), function(req, res) {
       if (err)
         return handleErr(err, 'song:33');
 
-      res.render("partials/song", {song: newSong, layout: false});
+      newSong.layout = false;
+      res.render("partials/song", newSong);
     });
   }
 });
