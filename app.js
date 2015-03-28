@@ -8,6 +8,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var exphbs = require('express-handlebars');
+var multer = require('multer');
 
 var app = express();
 
@@ -20,7 +21,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(multer({ dest: './midi/' }));
+
 // routes
 app.get('/', index.home);
+
+app.post('/midi', function(req, res){
+	res.redirect('/');
+});
 
 app.listen(process.env.PORT || 3000);
