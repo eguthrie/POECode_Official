@@ -21,18 +21,19 @@ router.get('/:id', function(req, res) {
 
 // add a new song
 router.post('/', multer({ dest: './songs/' }), function(req, res) {
-  var time = new Date();
-  var name = req.body.name;
-  var artist = req.body.artist;
-  var artPath = req.files.art.path;
-  var midiPath = req.files.midi.path;
+  var song = {};
+  song.time = new Date();
+  song.name = req.body.name;
+  song.artist = req.body.artist;
+  song.artPath = req.files.art.path;
+  song.midiPath = req.files.midi.path;
   
-  // new Song(req.body).save(function(err, article) {
-  //   if (err)
-  //     return handleErr(err, 'article:33');
+  new Song(song).save(function(err, song) {
+    if (err)
+      return handleErr(err, 'song:33');
 
-  //   res.json(article);
-  // });
+    res.json(song);
+  });
 });
 
 // // delete an article by id
