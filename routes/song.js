@@ -28,11 +28,11 @@ router.post('/', multer({ dest: './songs/' }), function(req, res) {
   song.artPath = req.files.art.path;
   song.midiPath = req.files.midi.path;
   
-  new Song(song).save(function(err, song) {
+  new Song(song).save(function(err, newSong) {
     if (err)
       return handleErr(err, 'song:33');
 
-    res.json(song);
+    res.render("partials/song", {song: newSong, layout: false});
   });
 });
 
