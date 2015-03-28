@@ -21,9 +21,11 @@ router.get('/:id', function(req, res) {
 
 // add a new song
 router.post('/', multer({ dest: './songs/' }), function(req, res) {
-  req.body.created = new Date();
-  var artName = req.files.art.name;
-  var midiName = req.files.midi.name;
+  var time = new Date();
+  var name = req.body.name;
+  var artist = req.body.artist;
+  var artPath = req.files.art.path;
+  var midiPath = req.files.midi.path;
   
   // new Song(req.body).save(function(err, article) {
   //   if (err)
