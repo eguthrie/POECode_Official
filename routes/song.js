@@ -14,7 +14,7 @@ router.getSongs = function(callback) {
 }
 
 router.get('/', function(req, res) {
-  router.getSongs(function() {
+  router.getSongs(function(songs) {
     res.json(songs);
   });
 });
