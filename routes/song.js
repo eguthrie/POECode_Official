@@ -11,6 +11,14 @@ router.getSongs = function(callback) {
       return handleErr(err, 'song:11');
     callback(songs);
   });
+};
+
+router.getSong = function(id, callback) {
+  Song.findOne({_id: id}).exec(function(err, song) {
+    if (err)
+      return handleErr(err, 'song:19');
+    callback(song);
+  })
 }
 
 router.get('/', function(req, res) {
@@ -21,7 +29,10 @@ router.get('/', function(req, res) {
 
 // get an song by id
 router.get('/:id', function(req, res) {
-  res.end();
+  var id = req.params.id;
+  router.getSong(id, function(song) {
+    res.json(song);
+  })
 });
 
 // add a new song
