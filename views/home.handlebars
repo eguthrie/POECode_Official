@@ -13,5 +13,14 @@
       {{> song}}
     {{/each}}
   </div>
-  <div id="right-content">now playing</div>
+  <div id="right-content">
+    <div id="now-playing-wrapper">
+      <h1>now playing</h1>
+    </div>
+    <div id="song-queue_wrapper">
+      {{#each songQueue}}
+        {{> songQueue}}
+      {{/each}}
+    </div>
+  </div>
 </div>
