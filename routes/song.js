@@ -9,7 +9,7 @@ router.getSongs = function(callback) {
   Song.find().sort({ name: 1 }).exec(function(err, songs) {
     if (err)
       return handleErr(err, 'song:11');
-    callback(songs);
+    callback(null, songs);
   });
 };
 
@@ -17,12 +17,12 @@ router.getSong = function(id, callback) {
   Song.findOne({_id: id}).exec(function(err, song) {
     if (err)
       return handleErr(err, 'song:19');
-    callback(song);
+    callback(null, song);
   })
 }
 
 router.get('/', function(req, res) {
-  router.getSongs(function(songs) {
+  router.getSongs(function(err, songs) {
     res.json(songs);
   });
 });
@@ -30,7 +30,7 @@ router.get('/', function(req, res) {
 // get an song by id
 router.get('/:id', function(req, res) {
   var id = req.params.id;
-  router.getSong(id, function(song) {
+  router.getSong(id, function(err, song) {
     res.json(song);
   })
 });
