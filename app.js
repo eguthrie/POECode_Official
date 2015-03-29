@@ -57,12 +57,15 @@ io.on('connection', function(socket) {
   socket.on('queue-add', function(data) {
     console.log('global.songQueue.queue');
     console.log(global.songQueue.queue);
-    global.songQueue.queue.push(data.songId);
+
+    var songIndex = global.songQueue.queue.indexOf(data.songId);
+    if (songIndex === -1)
+      global.songQueue.queue.push(data.songId);
   });
 
   socket.on('queue-remove', function(data) {
-    var index = global.songQueue.queue.indexOf(data.songId);
-    global.songQueue.queue.splice(index, 1);
+    var songIndex = global.songQueue.queue.indexOf(data.songId);
+    global.songQueue.queue.splice(songIndex, 1);
   });
 })
 
