@@ -38,19 +38,28 @@ app.get('/', index.home);
 app.use('/song', song);
 
 // sockets
-var songQueue = [];
+var SongQueue = function() {
+  this.queue = []
+
+  this.getSongs = this.queue.map(function(id) {
+    return song.getSong(id)
+  });
+
+  return this;
+}
+
+global.songQueue = new SongQueue();
 
 io.on('connection', function(socket) {
   console.log('New connection');
+
   socket.on('queue-add', function(data) {
-    songQueue.push(data.songId);
-    console.log('songQueue');
-    console.log(songQueue);
+    global.songQueue.queue.push(data.songId);
   });
 
   socket.on('queue-remove', function(data) {
-    var index = songQueue.indexOf(data.songId);
-    songQueue.splice(index, 1);
+    var index = global.songQueue.queue.indexOf(data.songId);
+    global.songQueue.queue.splice(index, 1);
   });
 })
 
