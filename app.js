@@ -1,6 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var path = require('path');
+var async = require('async');
 
 // routes
 var index = require('./routes/index');
@@ -38,22 +39,24 @@ app.get('/', index.home);
 app.use('/song', song);
 
 // sockets
-var SongQueue = function() {
-  this.queue = []
+global.songQueue = {
+  queue: [],
+  getSongs: function(callback) {
+    async.map(global.songQueue.queue, song.getSong, function(err, songList) {
+      if (err)
+        return console.error('Async error', err);
 
-  this.getSongs = this.queue.map(function(id) {
-    return song.getSong(id)
-  });
-
-  return this;
+      callback(err, songList);
+    });
+  }
 }
-
-global.songQueue = new SongQueue();
 
 io.on('connection', function(socket) {
   console.log('New connection');
 
   socket.on('queue-add', function(data) {
+    console.log('global.songQueue.queue');
+    console.log(global.songQueue.queue);
     global.songQueue.queue.push(data.songId);
   });
 
