@@ -59,7 +59,7 @@ io.on('connection', function(socket) {
       global.songQueue.queue.push(data.songId);
 
     global.songQueue.getSongs(function(err, songs) {
-      socket.emit('queue-update', {
+      io.emit('queue-update', {
         queue: songs
       });
     });
@@ -71,7 +71,7 @@ io.on('connection', function(socket) {
     global.songQueue.queue.splice(songIndex, 1);
 
     global.songQueue.getSongs(function(err, songs) {
-      socket.emit('queue-update', {
+      io.emit('queue-update', {
         queue: songs
       });
     });
