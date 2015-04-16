@@ -36,15 +36,15 @@ function bindThumbs() {
       songId: $song.attr('id')
     });
   });
-}
 
-$('.song-thumb').click(function(event) {
-  var $song = $(this);
-  
-  socket.emit('queue-add', {
-    songId: $song.attr('id')
+  $('.song-thumb .queue-song').click(function(event) {
+    var $song = $(this).parent();
+    
+    socket.emit('queue-add', {
+      songId: $song.attr('id')
+    });
   });
-});
+}
 
 bindQueue()
 bindThumbs()
