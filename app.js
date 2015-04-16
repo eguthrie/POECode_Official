@@ -54,6 +54,7 @@ global.songQueue = {
 io.on('connection', function(socket) {
   console.log('New connection');
 
+  // a client adds to the queue
   socket.on('queue-add', function(data) {
     console.log('global.songQueue.queue');
     console.log(global.songQueue.queue);
@@ -61,11 +62,20 @@ io.on('connection', function(socket) {
     var songIndex = global.songQueue.queue.indexOf(data.songId);
     if (songIndex === -1)
       global.songQueue.queue.push(data.songId);
+
+    socket.emit('queue-update', {
+      queue: global.songQueue.queue
+    });
   });
 
+  // a client removes from the queue
   socket.on('queue-remove', function(data) {
     var songIndex = global.songQueue.queue.indexOf(data.songId);
     global.songQueue.queue.splice(songIndex, 1);
+
+    socket.emit('queue-update', {
+      queue: global.songQueue.queue
+    });
   });
 })
 
