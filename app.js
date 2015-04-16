@@ -63,8 +63,10 @@ io.on('connection', function(socket) {
     if (songIndex === -1)
       global.songQueue.queue.push(data.songId);
 
-    socket.emit('queue-update', {
-      queue: global.songQueue.queue
+    global.songQueue.getSongs(function(err, songs) {
+      socket.emit('queue-update', {
+        queue: songs
+      });
     });
   });
 
@@ -73,8 +75,10 @@ io.on('connection', function(socket) {
     var songIndex = global.songQueue.queue.indexOf(data.songId);
     global.songQueue.queue.splice(songIndex, 1);
 
-    socket.emit('queue-update', {
-      queue: global.songQueue.queue
+    global.songQueue.getSongs(function(err, songs) {
+      socket.emit('queue-update', {
+        queue: songs
+      });
     });
   });
 })

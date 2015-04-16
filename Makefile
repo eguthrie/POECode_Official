@@ -1,2 +1,2 @@
-public/js/templates.js : views
-	handlebars views -f public/js/templates.js
+public/js/partials.js : views/partials/*
+	handlebars views/partials -pf public/js/partials.js
