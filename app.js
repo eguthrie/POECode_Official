@@ -16,8 +16,6 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-server.listen(3001);
-
 var PORT = process.env.PORT || 3000;
 var MONGO = process.env.MONGOURI_WIKI || 'mongodb://localhost/test';
 
@@ -56,9 +54,6 @@ io.on('connection', function(socket) {
 
   // a client adds to the queue
   socket.on('queue-add', function(data) {
-    console.log('global.songQueue.queue');
-    console.log(global.songQueue.queue);
-
     var songIndex = global.songQueue.queue.indexOf(data.songId);
     if (songIndex === -1)
       global.songQueue.queue.push(data.songId);
@@ -83,6 +78,6 @@ io.on('connection', function(socket) {
   });
 })
 
-app.listen(PORT, function() {
+server.listen(PORT, function() {
   console.log('App running on port',PORT);
 });

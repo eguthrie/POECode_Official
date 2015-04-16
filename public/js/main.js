@@ -1,4 +1,4 @@
-var socket = io.connect('http://localhost:3001');
+var socket = io()
 
 socket.on('queue-update', function(update) {
   var queue = Handlebars.partials.songQueue({
@@ -6,24 +6,11 @@ socket.on('queue-update', function(update) {
   });
   $('#song-queue-wrapper').html(queue);
 
-  bindEvents()
+  bindRemove()
 })
 
-bindEvents()
-
-function bindEvents() {
-  var $songs = $('.song-thumb');
-  var $removeButtons = $('.remove-song');
-
-  $songs.one('click', function(event) {
-    var $song = $(this);
-    
-    socket.emit('queue-add', {
-      songId: $song.attr('id')
-    });
-  });
-
-  $removeButtons.one('click', function(event) {
+function bindRemove() {
+  $('.remove-song').click(function(event) {
     var songId = $(this).parent().attr('id');
 
     socket.emit('queue-remove', {
@@ -31,3 +18,15 @@ function bindEvents() {
     });
   })
 }
+
+var $songs = $('.song-thumb');
+
+$songs.click(function(event) {
+  var $song = $(this);
+  
+  socket.emit('queue-add', {
+    songId: $song.attr('id')
+  });
+});
+
+bindRemove()
