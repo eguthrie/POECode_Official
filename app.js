@@ -76,7 +76,11 @@ io.on('connection', function(socket) {
       });
     });
   });
-})
+
+  socket.on('song-delete', function(data) {
+    song.delete(data.songId, null);
+  });
+});
 
 server.listen(PORT, function() {
   console.log('App running on port',PORT);

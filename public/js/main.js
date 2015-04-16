@@ -10,21 +10,32 @@ socket.on('queue-update', function(update) {
 })
 
 function bindRemove() {
-  $('.remove-song').click(function(event) {
+  $('.song-queued .remove-song').click(function(event) {
+    alert('remove');
     var songId = $(this).parent().attr('id');
 
     socket.emit('queue-remove', {
       songId: songId
     });
-  })
+  });
 }
 
-var $songs = $('.song-thumb');
-
-$songs.click(function(event) {
+$('.song-thumb').click(function(event) {
   var $song = $(this);
   
   socket.emit('queue-add', {
+    songId: $song.attr('id')
+  });
+});
+
+console.log("$('.song-queued .remove-song')");
+console.log($('.song-queued .remove-song'));
+
+$('.song-thumb .remove-song').click(function(event) {
+  alert('delete');
+  var $song = $(this).parent();
+
+  socket.emit('song-delete', {
     songId: $song.attr('id')
   });
 });

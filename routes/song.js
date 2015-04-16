@@ -1,6 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var multer = require('multer');
+var fs = require('fs');
 var Song = require('../models/song');
 var handleErr = require('../utils/utils').handleErr;
 
@@ -27,7 +28,7 @@ router.get('/', function(req, res) {
   });
 });
 
-// get an song by id
+// get a song by id
 router.get('/:id', function(req, res) {
   var id = req.params.id;
   router.getSong(id, function(err, song) {
@@ -57,14 +58,27 @@ router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   }
 });
 
-// // delete an article by id
-// router.delete('/:id', function(req, res) {
-//   Article.findOneAndRemove({ _id: req.params.id }, function(err) {
-//     if (err)
-//       return handleErr(err, 'article:46')
+// delete a song by id
+router.delete = function(id, callback) {
+  Song.findOne({ _id: id }, function(err, song) {
+    if (err)
+      return handleErr(err, 'song:64')
+    Song.findOneAndRemove({ _id: id }, function(err) {
+      if (err)
+        return handleErr(err, 'song:68')
 
-//     res.json({ success: true });
-//   })
-// });
+      fs.unlink(song.artPath, function(err) {
+        if (err)
+          return handleErr(err, 'song:72')
+        fs.unlink(song.midiPath, function(err) {
+        if (err)
+          return handleErr(err, 'song:75')
+          if (callback)
+            callback(null, true)
+        });
+      });
+    });
+  })
+}
 
 module.exports = router;
