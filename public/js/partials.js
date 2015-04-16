@@ -35,4 +35,15 @@ Handlebars.partials['songQueue'] = template({"1":function(depth0,helpers,partial
     + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.songQueue : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
     + "</div>";
 },"usePartial":true,"useData":true});
+Handlebars.partials['songThumbs'] = template({"1":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return ((stack1 = this.invokePartial(partials.song,depth0,{"name":"song","data":data,"indent":"    ","helpers":helpers,"partials":partials})) != null ? stack1 : "");
+},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<div class=\"song-thumbs\">\n"
+    + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.songs : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + "</div>";
+},"usePartial":true,"useData":true});
 })();

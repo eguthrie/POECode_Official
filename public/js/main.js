@@ -1,20 +1,39 @@
 var socket = io()
 
 socket.on('queue-update', function(update) {
-  var queue = Handlebars.partials.songQueue({
+  var songQueue = Handlebars.partials.songQueue({
     songQueue: update.queue
   });
-  $('#song-queue-wrapper').html(queue);
+  $('#song-queue-wrapper').html(songQueue);
 
-  bindRemove()
+  bindQueue();
 })
 
-function bindRemove() {
+socket.on('songs-update', function(update) {
+  var songThumbs = Handlebars.partials.songThumbs({
+    songs: update.songs
+  });
+  $('#song-thumbs-wrapper').html(songThumbs);
+
+  bindThumbs();
+})
+
+function bindQueue() {
   $('.song-queued .remove-song').click(function(event) {
     var songId = $(this).parent().attr('id');
 
     socket.emit('queue-remove', {
       songId: songId
+    });
+  });
+}
+
+function bindThumbs() {
+  $('.song-thumb .remove-song').click(function(event) {
+    var $song = $(this).parent();
+
+    socket.emit('song-delete', {
+      songId: $song.attr('id')
     });
   });
 }
@@ -27,12 +46,5 @@ $('.song-thumb').click(function(event) {
   });
 });
 
-$('.song-thumb .remove-song').click(function(event) {
-  var $song = $(this).parent();
-
-  socket.emit('song-delete', {
-    songId: $song.attr('id')
-  });
-});
-
-bindRemove()
+bindQueue()
+bindThumbs()

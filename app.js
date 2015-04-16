@@ -85,6 +85,12 @@ io.on('connection', function(socket) {
   socket.on('song-delete', function(data) {
     song.delete(data.songId, function(err) {
       global.songQueue.removeSong(data.songId);
+
+      song.getSongs(function(err, songs) {
+        io.emit('songs-update', {
+          songs: songs
+        });
+      });
     });
   });
 });
