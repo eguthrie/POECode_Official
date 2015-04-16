@@ -42,8 +42,8 @@ router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   song.time = new Date();
   song.name = req.body.name;
   song.artist = req.body.artist;
-  if (!req.files.art) req.files.art.path = "songs/default.png";
-  song.artPath = "songs/"+req.files.art.name;
+  if (!req.files.art) req.files.art.path = "./public/songs/default.png";
+  song.artPath = "./public/songs/"+req.files.art.name;
 
   if (!req.files.midi) {
     res.end("You must submit a midi file");
@@ -74,7 +74,7 @@ router.delete = function(id, callback) {
         if (err)
           return handleErr(err, 'song:75')
           if (callback)
-            callback(null, true)
+            callback(err, true)
         });
       });
     });

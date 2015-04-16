@@ -46,6 +46,26 @@ global.songQueue = {
 
       callback(err, songList);
     });
+  },
+  addSong: function(id) {
+    var songIndex = global.songQueue.queue.indexOf(id);
+    if (songIndex === -1)
+      global.songQueue.queue.push(id);
+
+    global.songQueue.update();
+  },
+  removeSong: function(id) {
+    var songIndex = global.songQueue.queue.indexOf(id);
+    global.songQueue.queue.splice(songIndex, 1);
+
+    global.songQueue.update();
+  },
+  update: function() {
+    global.songQueue.getSongs(function(err, songs) {
+      io.emit('queue-update', {
+        queue: songs
+      });
+    });
   }
 }
 
@@ -54,31 +74,18 @@ io.on('connection', function(socket) {
 
   // a client adds to the queue
   socket.on('queue-add', function(data) {
-    var songIndex = global.songQueue.queue.indexOf(data.songId);
-    if (songIndex === -1)
-      global.songQueue.queue.push(data.songId);
-
-    global.songQueue.getSongs(function(err, songs) {
-      io.emit('queue-update', {
-        queue: songs
-      });
-    });
+    global.songQueue.addSong(data.songId);
   });
 
   // a client removes from the queue
   socket.on('queue-remove', function(data) {
-    var songIndex = global.songQueue.queue.indexOf(data.songId);
-    global.songQueue.queue.splice(songIndex, 1);
-
-    global.songQueue.getSongs(function(err, songs) {
-      io.emit('queue-update', {
-        queue: songs
-      });
-    });
+    global.songQueue.removeSong(data.songId);
   });
 
   socket.on('song-delete', function(data) {
-    song.delete(data.songId, null);
+    song.delete(data.songId, function(err) {
+      global.songQueue.removeSong(data.songId);
+    });
   });
 });
 

@@ -11,7 +11,6 @@ socket.on('queue-update', function(update) {
 
 function bindRemove() {
   $('.song-queued .remove-song').click(function(event) {
-    alert('remove');
     var songId = $(this).parent().attr('id');
 
     socket.emit('queue-remove', {
@@ -28,11 +27,7 @@ $('.song-thumb').click(function(event) {
   });
 });
 
-console.log("$('.song-queued .remove-song')");
-console.log($('.song-queued .remove-song'));
-
 $('.song-thumb .remove-song').click(function(event) {
-  alert('delete');
   var $song = $(this).parent();
 
   socket.emit('song-delete', {
