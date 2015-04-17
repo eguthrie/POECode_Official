@@ -18,11 +18,11 @@ Handlebars.partials['song'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":
     + alias3(((helper = (helper = helpers._id || (depth0 != null ? depth0._id : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"_id","hash":{},"data":data}) : helper)))
     + "\">\n  <h1>"
     + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
-    + " - "
+    + "</h1>\n  <h2>"
     + alias3(((helper = (helper = helpers.artist || (depth0 != null ? depth0.artist : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"artist","hash":{},"data":data}) : helper)))
-    + "</h1>\n  <img src=\""
+    + "</h2>\n  <img src=\""
     + alias3(((helper = (helper = helpers.artPath || (depth0 != null ? depth0.artPath : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"artPath","hash":{},"data":data}) : helper)))
-    + "\" class=\"art\"></img>\n  <div class=\"queue-song\">Add to queue</div>\n  <div class=\"remove-song\">X</div>\n</div>\n";
+    + "\" class=\"art\"></img>\n  <div class=\"queue-song\">+</div>\n  <div class=\"remove-song\">X</div>\n</div>\n";
 },"useData":true});
 Handlebars.partials['songQueue'] = template({"1":function(depth0,helpers,partials,data) {
     var stack1;

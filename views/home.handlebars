@@ -8,17 +8,19 @@
 </form>
 <div id="container">
   <div id="header">header</div>
-  <div id="left-content">
-    <div id="song-thumbs-wrapper">
-      {{> songThumbs}}
+  <div id="flex-container">
+    <div id="left-content">
+      <div id="song-thumbs-wrapper">
+        {{> songThumbs}}
+      </div>
     </div>
-  </div>
-  <div id="right-content">
-    <div id="now-playing-wrapper">
-      <h1>now playing</h1>
-    </div>
-    <div id="song-queue-wrapper">
-      {{> songQueue }}
+    <div id="right-content">
+      <div id="now-playing-wrapper">
+        <h1>now playing</h1>
+      </div>
+      <div id="song-queue-wrapper">
+        {{> songQueue }}
+      </div>
     </div>
   </div>
 </div>
