@@ -67,18 +67,46 @@ button, input[type=submit]
 
 #left-content
   background-color blue
-  flex 1 auto
+  flex 2 0
   
+  padding 1rem
+
 .song-thumbs
   display -webkit-flex
   flex-flow row wrap
 
   .song-thumb
-    margin 16px
-    padding 16px
+    margin 1rem
+    padding 1rem
     
-    flex 1 0
+    flex 0 auto
+    position relative
+    
+    .queue-song
+      cursor pointer
+      position absolute
+      top 0
+      right 0
+    
+    .remove-song
+      cursor pointer
+      position absolute
+      top 0
+      left 0
+
+.song-queue
+  .song-queued
+    position relative
+
+    vertical-align middle
+    
+    .remove-song
+      cursor pointer
+      
+      height 100%
 
 #right-content
   background-color green
-  flex 0 400px
+  flex 1 0
+  
+  padding 1rem

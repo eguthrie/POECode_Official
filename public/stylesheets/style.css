@@ -52,11 +52,12 @@ input[type=submit] {
 }
 #left-content {
   background-color: #00f;
-  -webkit-flex: 1 auto;
-  -moz-flex: 1 auto;
-  -ms-flex: 1 auto;
-  -o-flex: 1 auto;
-  flex: 1 auto;
+  -webkit-flex: 2 0;
+  -moz-flex: 2 0;
+  -ms-flex: 2 0;
+  -o-flex: 2 0;
+  flex: 2 0;
+  padding: 1rem;
 }
 .song-thumbs {
   display: -webkit-flex;
@@ -67,19 +68,41 @@ input[type=submit] {
   flex-flow: row wrap;
 }
 .song-thumbs .song-thumb {
-  margin: 16px;
-  padding: 16px;
+  margin: 1rem;
+  padding: 1rem;
+  -webkit-flex: 0 auto;
+  -moz-flex: 0 auto;
+  -ms-flex: 0 auto;
+  -o-flex: 0 auto;
+  flex: 0 auto;
+  position: relative;
+}
+.song-thumbs .song-thumb .queue-song {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.song-thumbs .song-thumb .remove-song {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.song-queue .song-queued {
+  position: relative;
+  vertical-align: middle;
+}
+.song-queue .song-queued .remove-song {
+  cursor: pointer;
+  height: 100%;
+}
+#right-content {
+  background-color: #008000;
   -webkit-flex: 1 0;
   -moz-flex: 1 0;
   -ms-flex: 1 0;
   -o-flex: 1 0;
   flex: 1 0;
-}
-#right-content {
-  background-color: #008000;
-  -webkit-flex: 0 400px;
-  -moz-flex: 0 400px;
-  -ms-flex: 0 400px;
-  -o-flex: 0 400px;
-  flex: 0 400px;
+  padding: 1rem;
 }
