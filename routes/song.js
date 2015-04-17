@@ -22,20 +22,6 @@ router.getSong = function(id, callback) {
   })
 }
 
-router.get('/', function(req, res) {
-  router.getSongs(function(err, songs) {
-    res.json(songs);
-  });
-});
-
-// get a song by id
-router.get('/:id', function(req, res) {
-  var id = req.params.id;
-  router.getSong(id, function(err, song) {
-    res.json(song);
-  })
-});
-
 // add a new song
 router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   var song = {};
