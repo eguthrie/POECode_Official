@@ -99,7 +99,7 @@ input[type=submit] {
   height: 100%;
 }
 #right-content {
-  background-color: greem;
+  background-color: #008000;
   -webkit-flex: 1 0;
   -moz-flex: 1 0;
   -ms-flex: 1 0;
