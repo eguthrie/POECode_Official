@@ -92,13 +92,14 @@ input[type=submit] {
 .song-queue .song-queued {
   position: relative;
   vertical-align: middle;
+  white-space: nowrap;
 }
 .song-queue .song-queued .remove-song {
   cursor: pointer;
   height: 100%;
 }
 #right-content {
-  background-color: #008000;
+  background-color: greem;
   -webkit-flex: 1 0;
   -moz-flex: 1 0;
   -ms-flex: 1 0;
