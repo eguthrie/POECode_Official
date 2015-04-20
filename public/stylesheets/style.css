@@ -94,6 +94,9 @@ input[type=submit] {
   vertical-align: middle;
   white-space: nowrap;
 }
+.song-queue .song-queued h5 {
+  color: #222;
+}
 .song-queue .song-queued .remove-song {
   cursor: pointer;
   height: 100%;

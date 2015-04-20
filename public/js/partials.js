@@ -5,11 +5,11 @@ Handlebars.partials['queuedSong'] = template({"compiler":[6,">= 2.0.0-beta.1"],"
 
   return "<div class=\"song-queued\" id=\""
     + alias3(((helper = (helper = helpers._id || (depth0 != null ? depth0._id : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"_id","hash":{},"data":data}) : helper)))
-    + "\">\n  <span>"
+    + "\">\n  <h4>"
     + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
-    + " - "
+    + "</h4><h5>"
     + alias3(((helper = (helper = helpers.artist || (depth0 != null ? depth0.artist : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"artist","hash":{},"data":data}) : helper)))
-    + "</span>\n  <i class=\"remove-song pe-lg pe-7s-close\"></i>\n</div>";
+    + "</h5>\n  <i class=\"remove-song pe-lg pe-7s-close\"></i>\n</div>";
 },"useData":true});
 Handlebars.partials['song'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
