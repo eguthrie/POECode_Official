@@ -28,8 +28,7 @@ router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   song.time = new Date();
   song.name = req.body.name;
   song.artist = req.body.artist;
-  if (!req.files.art) req.files.art.path = "./public/songs/default.png";
-  song.artPath = "./public/songs/"+req.files.art.name;
+  song.artPath = req.body.artPath;
 
   if (!req.files.midi) {
     res.end("You must submit a midi file");
