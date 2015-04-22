@@ -46,33 +46,5 @@ function bindThumbs() {
   });
 }
 
-function getArt(name, callback){
-  $.get("https://api.spotify.com/v1/search?q=" +
-    name.replace(" ","+") +
-    "&type=track", 
-    function(data) {
-      var image = data.tracks.items[0].album.images[1].url;
-      callback(image);
-    });
-}
-
-$('#uploadForm').submit(function(event) {
-  event.preventDefault();
-  var song = $("#uploadForm input[name=name]").val();
-  var artist = $("#uploadForm input[name=artist]").val();
-  var file = $('#uploadForm input[type="file"]')[0].files[0];
-  var data = new FormData($("#uploadForm"));
-  getArt(song, function(image) {
-    data.append("artPath", image);
-    $.ajax({
-      url: "/song", 
-      type: "POST",
-      data: data,
-      processData: false,
-      contentType: "multipart/form-data"
-    });
-  });
-});
-
 bindQueue()
 bindThumbs()
