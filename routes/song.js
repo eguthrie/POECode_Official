@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var multer = require('multer');
 var fs = require('fs');
 var Song = require('../models/song');
+var request = require('request');
 var handleErr = require('../utils/utils').handleErr;
 
 var router = express.Router();
@@ -22,24 +23,36 @@ router.getSong = function(id, callback) {
   })
 }
 
+function getArt(name, callback){
+  request("https://api.spotify.com/v1/search?q=" +
+    name.replace(" ","+") +
+    "&type=track", 
+    function(err, response, body) {
+      // console.log(body);
+      var image = JSON.parse(body).tracks.items[0].album.images[1].url;
+      callback(image);
+    });
+}
+
 // add a new song
 router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   var song = {};
   song.time = new Date();
   song.name = req.body.name;
   song.artist = req.body.artist;
-  if (!req.files.art) req.files.art.path = "./public/songs/default.png";
-  song.artPath = "./public/songs/"+req.files.art.name;
-
   if (!req.files.midi) {
     res.end("You must submit a midi file");
   } else {
-    song.midiPath = req.files.midi.path;
-    
-    new Song(song).save(function(err, newSong) {
-      if (err)
-        return handleErr(err, 'song:33');
-      res.redirect("/");
+    getArt(song.name, function(artPath) { 
+      song.artPath = artPath;
+      song.midiPath = req.files.midi.path;
+      console.log(song);
+      
+      new Song(song).save(function(err, newSong) {
+        if (err)
+          return handleErr(err, 'song:33');
+        res.redirect("/");
+      });
     });
   }
 });
@@ -49,21 +62,18 @@ router.delete = function(id, callback) {
   Song.findOne({ _id: id }, function(err, song) {
     if (err)
       return handleErr(err, 'song:64')
-    Song.findOneAndRemove({ _id: id }, function(err) {
-      if (err)
-        return handleErr(err, 'song:68')
-
-      fs.unlink(song.artPath, function(err) {
+    if (song) {
+      Song.findOneAndRemove({ _id: id }, function(err) {
         if (err)
-          return handleErr(err, 'song:72')
+          return handleErr(err, 'song:68')
         fs.unlink(song.midiPath, function(err) {
-        if (err)
-          return handleErr(err, 'song:75')
+          if (err)
+            return handleErr(err, 'song:75')
           if (callback)
             callback(err, true)
         });
       });
-    });
+    }
   })
 }
 
