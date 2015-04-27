@@ -24,7 +24,8 @@
     "multer": "^0.1.8",
     "pi-gpio": "0.0.6",
     "request": "^2.55.0",
-    "socket.io": "^1.3.5"
+    "socket.io": "^1.3.5",
+    "stylus": "^0.51.0"
   },
   "bugs": {
     "url": "https://github.com/eguthrie/POECode_Official/issues"
