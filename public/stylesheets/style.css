@@ -46,7 +46,6 @@ input[type=submit] {
   -ms-align-items: stretch;
   -o-align-items: stretch;
   align-items: stretch;
-  min-height: 100%;
 }
 #navbar {
   box-sizing: border-box;
@@ -94,11 +93,11 @@ input[type=submit] {
 }
 #left-content {
   background-color: #bbdefb;
-  -webkit-flex: 4.5 0;
-  -moz-flex: 4.5 0;
-  -ms-flex: 4.5 0;
-  -o-flex: 4.5 0;
-  flex: 4.5 0;
+  -webkit-flex: 1 2;
+  -moz-flex: 1 2;
+  -ms-flex: 1 2;
+  -o-flex: 1 2;
+  flex: 1 2;
   padding: 1rem;
 }
 .song-thumbs {
@@ -115,7 +114,7 @@ input[type=submit] {
   align-items: flex-start;
 }
 .song-thumbs .song-thumb {
-  width: 300px;
+  width: 250px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   border: 1px solid transparent;
   background-color: #e3f2fd;
@@ -137,6 +136,7 @@ input[type=submit] {
 }
 .song-thumbs .song-thumb .art {
   padding-bottom: 1rem;
+  width: 250px;
 }
 .song-thumbs .song-thumb .remove-song {
   cursor: pointer;
@@ -196,10 +196,10 @@ input[type=submit] {
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   border: 1px solid transparent;
   background-color: #f5f5f5;
-  -webkit-flex: 1 0;
-  -moz-flex: 1 0;
-  -ms-flex: 1 0;
-  -o-flex: 1 0;
-  flex: 1 0;
+  -webkit-flex: 0 0 16rem;
+  -moz-flex: 0 0 16rem;
+  -ms-flex: 0 0 16rem;
+  -o-flex: 0 0 16rem;
+  flex: 0 0 16rem;
   padding: 1rem;
 }
