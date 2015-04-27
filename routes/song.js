@@ -26,7 +26,7 @@ function getSpotify(name, artist, callback){
   request("https://api.spotify.com/v1/search?q=track:'" +
     encodeURIComponent(name) +
     "'+artist:'"+
-    encodeURIComponent(artist)+
+    encodeURIComponent(artist || "")+
     "'&type=track", 
     function(err, response, body) {
       console.log(body);
