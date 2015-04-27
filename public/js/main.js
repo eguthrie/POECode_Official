@@ -20,7 +20,7 @@ socket.on('songs-update', function(update) {
 
 function bindQueue() {
   $('.song-queued .remove-song').click(function(event) {
-    var songId = $(this).parent().attr('id');
+    var songId = $(this).parents(".song-queued").attr('id');
 
     socket.emit('queue-remove', {
       songId: songId
@@ -30,15 +30,18 @@ function bindQueue() {
 
 function bindThumbs() {
   $('.song-thumb .remove-song').click(function(event) {
-    var $song = $(this).parent();
+    if(window.confirm(
+        "Are you sure you want to permanently delete this song?")){
+      var $song = $(this).parents(".song-thumb");
 
-    socket.emit('song-delete', {
-      songId: $song.attr('id')
-    });
+      socket.emit('song-delete', {
+        songId: $song.attr('id')
+      });
+    }
   });
 
-  $('.song-thumb .queue-song').click(function(event) {
-    var $song = $(this).parent();
+  $('.song-thumb').click(function(event) {
+    var $song = $(this);
     
     socket.emit('queue-add', {
       songId: $song.attr('id')
