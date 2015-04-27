@@ -22,15 +22,20 @@ router.getSong = function(id, callback) {
     callback(null, song);
   })
 }
-
-function getArt(name, callback){
-  request("https://api.spotify.com/v1/search?q=" +
-    name.replace(" ","+") +
-    "&type=track", 
+function getSpotify(name, artist, callback){
+  request("https://api.spotify.com/v1/search?q=track:'" +
+    encodeURIComponent(name) +
+    "'+artist:'"+
+    encodeURIComponent(artist)+
+    "'&type=track", 
     function(err, response, body) {
-      // console.log(body);
-      var image = JSON.parse(body).tracks.items[0].album.images[1].url;
-      callback(image);
+      console.log(body);
+      var song = {}
+      var track = JSON.parse(body).tracks.items[0];
+      song.image = track.album.images[1].url;
+      song.name = track.name;
+      song.artist = track.artists[0].name;
+      callback(song);
     });
 }
 
@@ -43,8 +48,10 @@ router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   if (!req.files.midi) {
     res.end("You must submit a midi file");
   } else {
-    getArt(song.name, function(artPath) { 
-      song.artPath = artPath;
+    getSpotify(song.name, song.artist, function(checkedSong) { 
+      song.name = checkedSong.name;
+      song.artist = checkedSong.artist;
+      song.artPath = checkedSong.image;
       song.midiPath = req.files.midi.path;
       console.log(song);
       
