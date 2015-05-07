@@ -32,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // routes
 app.get('/', index.home);
+app.get('/upload', index.upload)
 
 //song router
 app.use('/song', song);

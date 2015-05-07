@@ -1,12 +1,4 @@
-<h1>Hi world</h1>
-<form id="uploadForm" enctype="multipart/form-data" action="/song" method="post">
-  <input type="text" name="name" required/>
-  <input type="text" name="artist" required/>
-  <input type="file" name="midi" required/>
-  <input type="submit" value="Upload Song" name="submit">
-</form>
 <div id="container">
-  <div id="header">header</div>
   <div id="flex-container">
     <div id="left-content">
       <div id="song-thumbs-wrapper">
@@ -15,7 +7,7 @@
     </div>
     <div id="right-content">
       <div id="now-playing-wrapper">
-        <h1>now playing</h1>
+        <h1>Now Playing</h1>
       </div>
       <div id="song-queue-wrapper">
         {{> songQueue }}

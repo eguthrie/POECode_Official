@@ -4,4 +4,4 @@ public/js/partials.js : views/partials/*
 	handlebars views/partials -pf public/js/partials.js
 
 public/stylesheets/style.css : stylus/style.styl
-	stylus stylus/style.styl -o public/stylesheets
+	stylus stylus/ -o public/stylesheets
