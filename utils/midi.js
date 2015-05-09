@@ -1,8 +1,8 @@
 var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
-var gpio = require('pi-gpio');
-var spi = require('pi-spi').intialize('/dev/spidev0.0');
+// var gpio = require('pi-gpio');
+// var spi = require('pi-spi').intialize('/dev/spidev0.0');
 
 // make note mappings
 var notes = {};
@@ -59,7 +59,7 @@ var strumFromState = function(state) {
 
 var stringFromNote = function(noteNum) {
   var stringMask = 0b11111 << 2;
-  for (int i = 0; i < 5; i++) {
+  for (var i = 0; i < 5; i++) {
     if (noteNum & stringMask) {
       return i;
     }
@@ -69,9 +69,6 @@ var stringFromNote = function(noteNum) {
   console.log("Note wasn't on a string.");
   return -1;
 }
-
-//calculating number of ticks in a beat
-var ticksPerBeat = midiFile.header.ticksPerBeat;
 
 //tempo is micros/beat for whatever the time signature says a beat is
 var getTempo = function(mf) {
@@ -137,6 +134,8 @@ var playSong = function(midiFile, tempo, callback) {
 module.exports.play = function(midiPath, callback) {
   var midiFile = MF(fs.readFileSync(midiPath, 'binary'));
   var tempo = getTempo(midiFile);
+  //calculating number of ticks in a beat
+  global.ticksPerBeat = midiFile.header.ticksPerBeat;
   resetState();
   playSong(midiFile, tempo, function(err) {
     resetState();
