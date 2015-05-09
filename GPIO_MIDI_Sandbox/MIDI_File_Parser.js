@@ -4,6 +4,7 @@ var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
 var gpio = require('pi-gpio');
+var spi = require('pi-spi').intialize('/dev/spidev0.0');
 
 //var mypath = path.join(__dirname,"midi.mid");
 var myBuffer = fs.readFileSync('midi1.mid','binary');
@@ -19,9 +20,19 @@ for (var i = 52; i <= 81; i++) {
   notes[i] = 0x01 << 81-i+2;
 }
 
-var fretState = 0x00;
-var strumState = [True, True, True, True, True, True]; // high on left, low on right
-var stringPins = [[7, 11], [12, 13], [15, 16], [18, 22]]; // can add more for B+
+var fretState;
+var strumState; // high on left, low on right
+var stringPins; // can add more for B+
+
+var resetState = function() {
+  fretState = 0x00;
+  strumState = [True, True, True, True, True, True]; // high on left, low on right
+  stringPins = [[7, 11], [12, 13], [15, 16], [18, 22]]; // can add more for B+
+
+  for (var i = 0; i < stringPins.length; i++) {
+    strumGPIO(i);
+  }
+}
 
 var strumGPIO = function(string) {
   var pos = strumFromState(strumState[string]);
@@ -36,6 +47,15 @@ var strumGPIO = function(string) {
   }
 
   strumState[string] = !strumState[string];
+}
+
+var fretSPI = function(state) {
+  var stateBuff = Buffer(state)
+  spi.transfer(stateBuff, stateBuff.length, function(err) {
+    if (err) {
+      return console.error(err);
+    }
+  })
 }
 
 var strumFromState = function(state) {
@@ -97,9 +117,10 @@ var handleMidiEvent = function(track, tempo, index) {
       }
       console.log(subtype, decbin(note, 32));
       console.log(decbin(fretState, 32));
-      // updateFretOut(fretState)
+      fretSPI(fretState);
+
       if (subtype === 'noteOn') {
-        strumGPIO(stringFromNote(noteNum))
+        strumGPIO(stringFromNote(noteNum));
       }
     }
   }
@@ -118,5 +139,10 @@ var handleMidiEvent = function(track, tempo, index) {
 var playSong = function(midiFile, tempo) {
   handleMidiEvent(midiFile.tracks[1], tempo, 0)
 }
+
+// code starts running
+
+resetState()
 var tempo = getTempo(midiFile)
+
 playSong(midiFile, tempo);
