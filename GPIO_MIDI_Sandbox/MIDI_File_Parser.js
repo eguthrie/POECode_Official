@@ -12,6 +12,12 @@ var midiFile =  MF(myBuffer);
 //trackCount, and ticksPerBeat 
 //.tracks has deltaTime channel type noteNumber velocity subtype
 
+// make note mappings
+var notes = {};
+for (var i = 52; i <= 81; i++) {
+  notes[i] = 0x0001 << 81-i+2;
+}
+
 //calculating number of ticks in a beat
 var ticksPerBeat = midiFile.header.ticksPerBeat;
 
@@ -38,7 +44,9 @@ var handleMidiEvent = function(track, tempo, index) {
     var state = subtype === 'noteOn' ? 1:0;
     // noteNumberMapping(notes, state, midiTick);
     // updateOutput(output, notes);
-    console.log(subtype, noteNumber);
+    if (notes[noteNumber]) {
+      console.log(subtype, notes[noteNumber], noteNumber);
+    }
   }
 
   var midiTickNext = track[index+1];
