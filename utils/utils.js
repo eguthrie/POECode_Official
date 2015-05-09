@@ -1,6 +1,6 @@
 module.exports = {
-  handleErr: function(err, msg) {
-    return console.error('Message:', msg,
-      ' -- Error: ', err);
+  handleErr: function(err) {
+    console.error('Err:', err);
+    return console.trace();
   }
 }
