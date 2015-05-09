@@ -3,6 +3,7 @@
 var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
+var gpio = require('pi-gpio');
 
 //var mypath = path.join(__dirname,"midi.mid");
 var myBuffer = fs.readFileSync('midi1.mid','binary');
@@ -19,6 +20,43 @@ for (var i = 52; i <= 81; i++) {
 }
 
 var fretState = 0x00;
+var strumState = [True, True, True, True, True, True]; // high on left, low on right
+var stringPins = [[7, 11], [12, 13], [15, 16], [18, 22]]; // can add more for B+
+
+var strumGPIO = function(string) {
+  var pos = strumFromState(strumState[string]);
+  var pins = stringPins[string];
+
+  for (var i = 0; i < pos.length; i++) {
+    gpio.open(pins[i], 'output', function(err) {
+      gpio.write(pins[i], pos[i], function() {
+        gpio.close(pins[i]);
+      });
+    });
+  }
+
+  strumState[string] = !strumState[string];
+}
+
+var strumFromState = function(state) {
+  switch(state) {
+    case  True: return [0, 1];
+    case False: return [1, 0];
+  }
+}
+
+var stringFromNote = function(noteNum) {
+  var stringMask = 0b11111 << 2;
+  for (int i = 0; i < 5; i++) {
+    if (noteNum & stringMask) {
+      return i;
+    }
+
+    stringMask <<= 5;
+  }
+  console.log("Note wasn't on a string.");
+  return -1;
+}
 
 //calculating number of ticks in a beat
 var ticksPerBeat = midiFile.header.ticksPerBeat;
@@ -50,9 +88,6 @@ var handleMidiEvent = function(track, tempo, index) {
 
   }
   if (type === "channel" && (subtype === 'noteOn' || subtype === 'noteOff')){
-    var state = subtype === 'noteOn' ? 1:0;
-    // noteNumberMapping(notes, state, midiTick);
-    // updateOutput(output, notes);
     var note = notes[noteNumber];
     if (note) {
       if (subtype === 'noteOn') {
@@ -62,6 +97,10 @@ var handleMidiEvent = function(track, tempo, index) {
       }
       console.log(subtype, decbin(note, 32));
       console.log(decbin(fretState, 32));
+      // updateFretOut(fretState)
+      if (subtype === 'noteOn') {
+        strumGPIO(stringFromNote(noteNum))
+      }
     }
   }
 
