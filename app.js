@@ -16,8 +16,6 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-server.listen(3001);
-
 var PORT = process.env.PORT || 3000;
 var MONGO = process.env.MONGOURI_WIKI || 'mongodb://localhost/test';
 
@@ -34,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // routes
 app.get('/', index.home);
+app.get('/upload', index.upload)
 
 //song router
 app.use('/song', song);
@@ -48,27 +47,55 @@ global.songQueue = {
 
       callback(err, songList);
     });
+  },
+  addSong: function(id) {
+    var songIndex = global.songQueue.queue.indexOf(id);
+    if (songIndex === -1)
+      global.songQueue.queue.push(id);
+
+    global.songQueue.update();
+  },
+  removeSong: function(id) {
+    var songIndex = global.songQueue.queue.indexOf(id);
+    global.songQueue.queue.splice(songIndex, 1);
+
+    global.songQueue.update();
+  },
+  update: function() {
+    global.songQueue.getSongs(function(err, songs) {
+      io.emit('queue-update', {
+        queue: songs
+      });
+    });
   }
 }
 
 io.on('connection', function(socket) {
   console.log('New connection');
 
+  // a client adds to the queue
   socket.on('queue-add', function(data) {
-    console.log('global.songQueue.queue');
-    console.log(global.songQueue.queue);
-
-    var songIndex = global.songQueue.queue.indexOf(data.songId);
-    if (songIndex === -1)
-      global.songQueue.queue.push(data.songId);
+    global.songQueue.addSong(data.songId);
   });
 
+  // a client removes from the queue
   socket.on('queue-remove', function(data) {
-    var songIndex = global.songQueue.queue.indexOf(data.songId);
-    global.songQueue.queue.splice(songIndex, 1);
+    global.songQueue.removeSong(data.songId);
   });
-})
 
-app.listen(PORT, function() {
+  socket.on('song-delete', function(data) {
+    song.delete(data.songId, function(err) {
+      global.songQueue.removeSong(data.songId);
+
+      song.getSongs(function(err, songs) {
+        io.emit('songs-update', {
+          songs: songs
+        });
+      });
+    });
+  });
+});
+
+server.listen(PORT, function() {
   console.log('App running on port',PORT);
 });

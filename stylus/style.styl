@@ -1,0 +1,206 @@
+@import "colors"
+font-size = 18px
+
+navbar-height = 3rem
+
+doc-font()
+  font-family 'Open Sans', serif
+  font-weight 300
+  font-size font-size
+
+// gist.github.com/d3vron/1080346
+vendor(prop, args)
+  -webkit-{prop} args
+  -moz-{prop} args
+  -ms-{prop} args
+  -o-{prop} args
+  {prop} args
+
+flex-flow()
+  vendor('flex-flow', arguments)
+
+flex()
+  vendor('flex', arguments)
+
+align-items()
+  vendor('align-items', arguments)
+
+align-self()
+  vendor('align-self', arguments)
+
+gradient()
+  vendor('gradient', arguments)
+
+border-image()
+  vendor('border-image', arguments)
+  
+vertical-center()
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+
+*
+  margin 0
+  padding 0
+
+h1, h2, h3, h4, h5, h6
+  font-weight 300
+
+html, body
+  doc-font()
+  height 100%
+  min-height 100%
+  color $clr-grey-600
+
+button, input[type=submit]
+  doc-font()
+  cursor pointer
+  display inline-block
+  border none
+  background-color #aaaa
+  padding 6px
+  
+#container
+  height 100%
+  margin-top navbar-height
+  
+  
+#flex-container
+  display -webkit-flex
+  flex-flow row wrap
+  align-items stretch
+
+#navbar
+  box-sizing border-box
+  color #FFF
+  font-weight 500
+  font-size 24px
+  height navbar-height
+  display flex
+  padding 0.5rem 3rem 0.5rem 3rem
+  background-color $clr-blue
+  box-shadow 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)
+  border 1px solid transparent
+  position fixed
+  right 0
+  left 0
+  top 0
+  z-index 1000
+
+#navbar-left
+  flex-grow 1
+
+#navbar-right
+  flex-grow 4
+  display flex
+  flex-direction row-reverse
+  
+#navbar-buttons
+  flex-grow 1
+  display flex
+  justify-content flex-end
+  list-style-type none
+  
+#navbar-buttons li
+  margin 0 1.5rem 0 1.5rem
+
+  
+#navbar-buttons li:first-child
+  margin-left 0
+  
+#navbar-buttons li:last-child
+  margin-right 0
+  
+.navbar-button
+  color #FFF
+  text-decoration none
+  
+#left-content
+  background-color $clr-blue-100
+  flex 1 2
+  padding 1rem
+  
+.song-thumbs
+  display -webkit-flex
+  flex-flow row wrap
+  align-items flex-start
+
+  .song-thumb
+    width: 250px
+    box-shadow 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)
+    border 1px solid transparent
+    background-color $clr-blue-50
+    margin 1rem
+    padding 1rem 1rem 0 1rem
+    
+    flex 0 auto
+    position relative
+    cursor pointer
+    
+    h2, h3
+      white-space nowrap
+      overflow hidden
+      text-overflow ellipsis 
+    
+    .art
+      padding-bottom 1rem
+      width 250px
+    
+    .remove-song
+      cursor pointer
+      position absolute
+      top 0
+      right 0
+      
+#now-playing-wrapper
+  margin-bottom 0.5rem
+
+.song-queue
+  .song-queued
+    height 5rem
+    background-color $clr-grey-50
+    position relative
+    vertical-align middle
+    white-space nowrap
+    display flex
+    box-shadow 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)
+    border 1px solid transparent
+    margin-bottom 0.5rem
+    
+    h5
+      color $clr-grey-600
+      
+  .queued-left
+    flex 0 0 5rem
+        
+    .queued-art
+      height 5rem
+      width auto   
+
+  .queued-right
+    padding 0.5rem 0 0.5rem 0.5rem
+    
+    h4, h5
+      white-space nowrap
+      overflow hidden
+      text-overflow ellipsis 
+      margin-bottom 0.25rem
+      
+    h5
+      margin-bottom 0 
+    
+    .remove-song
+      cursor pointer
+      position absolute
+      top 0
+      right 0
+      height 100%
+
+#right-content
+  box-shadow 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)
+  border 1px solid transparent
+  background-color $clr-grey-100
+  flex 0 0 16rem
+  padding 1rem

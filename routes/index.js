@@ -7,5 +7,8 @@ module.exports = {
         res.render('home', { songs: songs, songQueue: songList });
       });
     });
+  },
+  upload: function(req, res) {
+    res.render('upload');
   }
 }
