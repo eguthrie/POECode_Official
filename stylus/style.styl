@@ -1,4 +1,4 @@
-@import "colors"
+@import colors
 font-size = 18px
 
 navbar-height = 3rem
@@ -15,6 +15,26 @@ vendor(prop, args)
   -ms-{prop} args
   -o-{prop} args
   {prop} args
+
+// fix display for Safari flexbox support
+display()
+  if arguments[0] is flex
+    display -webkit-flex
+    display flex
+  else
+    display arguments
+
+justify-content()
+  vendor('justify-content', arguments)
+
+flex-grow()
+  vendor('flex-grow', arguments)
+
+flex-shrink()
+  vendor('flex-shrink', arguments)
+
+flex-direction()
+  vendor('flex-direction', arguments)
 
 flex-flow()
   vendor('flex-flow', arguments)
@@ -68,7 +88,7 @@ button, input[type=submit]
   
   
 #flex-container
-  display -webkit-flex
+  display flex
   flex-flow row wrap
   align-items stretch
 
@@ -123,7 +143,7 @@ button, input[type=submit]
   padding 1rem
   
 .song-thumbs
-  display -webkit-flex
+  display flex
   flex-flow row wrap
   align-items flex-start
 
