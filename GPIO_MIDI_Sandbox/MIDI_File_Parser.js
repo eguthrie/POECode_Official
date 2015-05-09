@@ -15,8 +15,10 @@ var midiFile =  MF(myBuffer);
 // make note mappings
 var notes = {};
 for (var i = 52; i <= 81; i++) {
-  notes[i] = 0x0001 << 81-i+2;
+  notes[i] = 0x01 << 81-i+2;
 }
+
+var fretState = 0x00;
 
 //calculating number of ticks in a beat
 var ticksPerBeat = midiFile.header.ticksPerBeat;
@@ -29,6 +31,13 @@ var getTempo = function(mf) {
 			return metaTick.microsecondsPerBeat;
 		}
 	};
+}
+
+function decbin(dec,length){
+  var out = "";
+  while(length--)
+    out += (dec >> length ) & 1;    
+  return out;  
 }
 
 var handleMidiEvent = function(track, tempo, index) {
@@ -44,8 +53,15 @@ var handleMidiEvent = function(track, tempo, index) {
     var state = subtype === 'noteOn' ? 1:0;
     // noteNumberMapping(notes, state, midiTick);
     // updateOutput(output, notes);
-    if (notes[noteNumber]) {
-      console.log(subtype, notes[noteNumber], noteNumber);
+    var note = notes[noteNumber];
+    if (note) {
+      if (subtype === 'noteOn') {
+        fretState |= note;
+      } else {
+        fretState ^= note;
+      }
+      console.log(subtype, decbin(note, 32));
+      console.log(decbin(fretState, 32));
     }
   }
 
