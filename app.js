@@ -7,6 +7,9 @@ var async = require('async');
 var index = require('./routes/index');
 var song = require('./routes/song');
 
+// modules
+var midi = require('./utils/midi');
+
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');

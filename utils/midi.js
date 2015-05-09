@@ -1,18 +1,8 @@
-// Midi file playground testing parsign and GPIO output
-
 var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
 var gpio = require('pi-gpio');
 var spi = require('pi-spi').intialize('/dev/spidev0.0');
-
-//var mypath = path.join(__dirname,"midi.mid");
-var myBuffer = fs.readFileSync('midi1.mid','binary');
-var midiFile =  MF(myBuffer);
-
-//midiFile comprised of .header and .tracks.: .header has formatType
-//trackCount, and ticksPerBeat 
-//.tracks has deltaTime channel type noteNumber velocity subtype
 
 // make note mappings
 var notes = {};
@@ -38,24 +28,26 @@ var strumGPIO = function(string) {
   var pos = strumFromState(strumState[string]);
   var pins = stringPins[string];
 
-  for (var i = 0; i < pos.length; i++) {
-    gpio.open(pins[i], 'output', function(err) {
-      gpio.write(pins[i], pos[i], function() {
-        gpio.close(pins[i]);
-      });
-    });
-  }
+  console.log('strumState:', pins, pos);
+  // for (var i = 0; i < pos.length; i++) {
+  //   gpio.open(pins[i], 'output', function(err) {
+  //     gpio.write(pins[i], pos[i], function() {
+  //       gpio.close(pins[i]);
+  //     });
+  //   });
+  // }
 
   strumState[string] = !strumState[string];
 }
 
 var fretSPI = function(state) {
   var stateBuff = Buffer(state)
-  spi.transfer(stateBuff, stateBuff.length, function(err) {
-    if (err) {
-      return console.error(err);
-    }
-  })
+  console.log('fretState:', decbin(state, 32));
+  // spi.transfer(stateBuff, stateBuff.length, function(err) {
+  //   if (err) {
+  //     return console.error(err);
+  //   }
+  // });
 }
 
 var strumFromState = function(state) {
@@ -98,14 +90,16 @@ function decbin(dec,length){
   return out;  
 }
 
-var handleMidiEvent = function(track, tempo, index) {
+var handleMidiEvent = function(track, tempo, index, callback) {
   var midiTick = track[index];
   var type = midiTick.type;
   var subtype = midiTick.subtype;
   var noteNumber = midiTick.noteNumber;
 
   if (type === "meta") {
-
+    if (subtype === "endOfTrack") {
+      return callback(null);
+    }
   }
   if (type === "channel" && (subtype === 'noteOn' || subtype === 'noteOff')){
     var note = notes[noteNumber];
@@ -115,8 +109,6 @@ var handleMidiEvent = function(track, tempo, index) {
       } else {
         fretState ^= note;
       }
-      console.log(subtype, decbin(note, 32));
-      console.log(decbin(fretState, 32));
       fretSPI(fretState);
 
       if (subtype === 'noteOn') {
@@ -136,13 +128,18 @@ var handleMidiEvent = function(track, tempo, index) {
 }
 
 //generating output of the note
-var playSong = function(midiFile, tempo) {
-  handleMidiEvent(midiFile.tracks[1], tempo, 0)
+var playSong = function(midiFile, tempo, callback) {
+  handleMidiEvent(midiFile.tracks[1], tempo, 0, callback)
 }
 
 // code starts running
 
-resetState()
-var tempo = getTempo(midiFile)
-
-playSong(midiFile, tempo);
+module.exports.play = function(midiPath, callback) {
+  var midiFile = MF(fs.readFileSync(midiPath, 'binary'));
+  var tempo = getTempo(midiFile);
+  resetState();
+  playSong(midiFile, tempo, function(err) {
+    resetState();
+    callback(err);
+  });
+}
