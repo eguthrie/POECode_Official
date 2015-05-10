@@ -2,7 +2,7 @@ var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
 // var gpio = require('pi-gpio');
-// var spi = require('pi-spi').intialize('/dev/spidev0.0');
+// var spi = require('pi-spi').initialize('/dev/spidev0.0');
 
 // make note mappings
 var notes = {};
@@ -15,8 +15,8 @@ var strumState; // high on left, low on right
 var stringPins; // can add more for B+
 
 var resetState = function() {
-  fretState = 0x00;
-  strumState = [True, True, True, True, True, True]; // high on left, low on right
+  fretState = 0x00000000;
+  strumState = [true, true, true, true, true, true]; // high on left, low on right
   stringPins = [[7, 11], [12, 13], [15, 16], [18, 22]]; // can add more for B+
 
   for (var i = 0; i < stringPins.length; i++) {
@@ -28,7 +28,7 @@ var strumGPIO = function(string) {
   var pos = strumFromState(strumState[string]);
   var pins = stringPins[string];
 
-  console.log('strumState:', pins, pos);
+  // console.log('strumState:', pins, pos);
   // for (var i = 0; i < pos.length; i++) {
   //   gpio.open(pins[i], 'output', function(err) {
   //     gpio.write(pins[i], pos[i], function() {
@@ -41,8 +41,15 @@ var strumGPIO = function(string) {
 }
 
 var fretSPI = function(state) {
-  var stateBuff = Buffer(state)
-  // console.log('fretState:', decbin(state, 32));
+  var stateString = decbin(fretState, 32);
+  var octets = [];
+  for (var i = 0; i < 4; i++) {
+    octets.push(parseInt(stateString.substring(i*8, (i+1)*8), 2))
+  }
+  console.log(octets);
+  var stateBuff = Buffer(octets);
+  console.log('fretStateString: ', decbin(fretState));
+  console.log('fretState:', stateBuff);
   spi.transfer(stateBuff, stateBuff.length, function(err) {
     if (err) {
       return console.error(err);
@@ -52,8 +59,8 @@ var fretSPI = function(state) {
 
 var strumFromState = function(state) {
   switch(state) {
-    case  True: return [0, 1];
-    case False: return [1, 0];
+    case  true: return [0, 1];
+    case false: return [1, 0];
   }
 }
 
@@ -83,8 +90,8 @@ var getTempo = function(mf) {
 function decbin(dec,length){
   var out = "";
   while(length--)
-    out += (dec >> length ) & 1;    
-  return out;  
+    out += (dec >> length ) & 1;
+  return out;
 }
 
 var handleMidiEvent = function(track, tempo, index, callback) {
@@ -109,7 +116,7 @@ var handleMidiEvent = function(track, tempo, index, callback) {
       fretSPI(fretState);
 
       if (subtype === 'noteOn') {
-        strumGPIO(stringFromNote(noteNum));
+        strumGPIO(stringFromNote(noteNumber));
       }
     }
   }
