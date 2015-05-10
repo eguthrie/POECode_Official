@@ -6,7 +6,7 @@ var path = require("path");
 
 // make note mappings
 var notes = {};
-for (var i = 52; i <= 81; i++) {
+for (var i = 40; i <= 69; i++) {
   notes[i] = 0x01 << 81-i+2;
 }
 
