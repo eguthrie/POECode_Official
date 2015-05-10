@@ -42,12 +42,12 @@ var strumGPIO = function(string) {
 
 var fretSPI = function(state) {
   var stateBuff = Buffer(state)
-  console.log('fretState:', decbin(state, 32));
-  // spi.transfer(stateBuff, stateBuff.length, function(err) {
-  //   if (err) {
-  //     return console.error(err);
-  //   }
-  // });
+  // console.log('fretState:', decbin(state, 32));
+  spi.transfer(stateBuff, stateBuff.length, function(err) {
+    if (err) {
+      return console.error(err);
+    }
+  });
 }
 
 var strumFromState = function(state) {
