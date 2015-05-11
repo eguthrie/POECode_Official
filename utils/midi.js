@@ -1,8 +1,8 @@
 var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
-var gpio = require('pi-gpio');
-var spi = require('pi-spi').initialize('/dev/spidev0.0');
+// var gpio = require('pi-gpio');
+// var spi = require('pi-spi').initialize('/dev/spidev0.0');
 
 // make note mappings
 var notes = {
