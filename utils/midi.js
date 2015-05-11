@@ -190,14 +190,12 @@ module.exports.play = function(midiPath, callback) {
   //calculating number of ticks in a beat
   ticksPerBeat = midiFile.header.ticksPerBeat;
   resetState();
-  allPinDo('close', function() {
-    allPinDo('open', function() {
-      allPinDo('low', function() {
+  allPinDo('open', function() {
+    allPinDo('low', function() {
 
-        playSong(midiFile, tempo, function(err) {
-          resetState();
-          allPinDo('close', callback);
-        });
+      playSong(midiFile, tempo, function(err) {
+        resetState();
+        allPinDo('close', callback);
       });
     });
   });
