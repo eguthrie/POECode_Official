@@ -123,7 +123,7 @@ var fretSPI = function(state) {
   }
   console.log(octets);
   var stateBuff = Buffer(octets);
-  console.log('fretStateString: ', decbin(fretState));
+  console.log('fretStateString:', decbin(fretState, 32));
   console.log('fretState:', stateBuff);
   spi.transfer(stateBuff, stateBuff.length, function(err) {
     if (err) {
@@ -150,6 +150,7 @@ function decbin(dec,length){
 }
 
 var handleMidiEvent = function(track, tempo, index, callback) {
+  console.log("====Event====");
   var midiTick = track[index];
   var type = midiTick.type;
   var subtype = midiTick.subtype;
@@ -171,6 +172,8 @@ var handleMidiEvent = function(track, tempo, index, callback) {
       fretSPI(fretState);
 
       if (subtype === 'noteOn') {
+        console.log("Note", noteNumber);
+        console.log("Strumming String", strings[noteNumber]);
         strumGPIO(strings[noteNumber]);
       }
     }
@@ -221,7 +224,7 @@ module.exports.play = function(midiPath, callback) {
 
       playSong(midiFile, tempo, function(err) {
         resetState();
-        allPinDo('close', callback);
+        //allPinDo('close', callback);
       });
     });
   });
