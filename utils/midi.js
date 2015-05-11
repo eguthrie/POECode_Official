@@ -44,9 +44,9 @@ var notes = {
   69: 0b00001000000000000000000000000000,// A
 };
 
-var fretState;
-var strumState; // high on left, low on right
-stringPins; // can add more for B+
+var fretState = null;
+var strumState = null; // high on left, low on right
+var stringPins = null; // can add more for B+
 
 var resetState = function() {
   fretState = 0x00000000;
