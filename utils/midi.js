@@ -58,7 +58,7 @@ var resetState = function() {
     [12, 13],
     [15, 16],
     [18, 22]
-  ]; // can add more for B+
+  ];
 
   for (var i = 0; i < stringPins.length; i++) {
     strumGPIO(i);
