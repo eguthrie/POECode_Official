@@ -51,7 +51,14 @@ var stringPins; // can add more for B+
 var resetState = function() {
   fretState = 0x00000000;
   strumState = [true, true, true, true, true, true]; // high on left, low on right
-  stringPins = [[7, 11], [12, 13], [15, 16], [18, 22]]; // can add more for B+
+  stringPins = [
+    [3, 5],
+    [7, 8],
+    [10, 11],
+    [12, 13],
+    [15, 16],
+    [18, 22]
+  ]; // can add more for B+
 
   for (var i = 0; i < stringPins.length; i++) {
     strumGPIO(i);
