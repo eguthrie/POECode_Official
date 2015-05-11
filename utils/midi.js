@@ -44,9 +44,9 @@ var notes = {
   69: 0b00001000000000000000000000000000,// A
 };
 
-var fretState = null;
-var strumState = null; // high on left, low on right
-var stringPins = null; // can add more for B+
+var fretState;
+var strumState; // high on left, low on right
+var stringPins; // can add more for B+
 
 var resetState = function() {
   fretState = 0x00000000;
@@ -189,10 +189,10 @@ module.exports.play = function(midiPath, callback) {
   var tempo = getTempo(midiFile);
   //calculating number of ticks in a beat
   ticksPerBeat = midiFile.header.ticksPerBeat;
+  resetState();
   allPinDo('close', function() {
     allPinDo('open', function() {
       allPinDo('low', function() {
-        resetState();
 
         playSong(midiFile, tempo, function(err) {
           resetState();
