@@ -169,13 +169,13 @@ var handleMidiEvent = function(track, tempo, index, callback) {
       } else {
         fretState ^= note;
       }
-      fretSPI(fretState);
-
       if (subtype === 'noteOn') {
         console.log("Note", noteNumber);
         console.log("Strumming String", strings[noteNumber]);
         strumGPIO(strings[noteNumber]);
       }
+      fretSPI(fretState);
+
     }
   }
 
