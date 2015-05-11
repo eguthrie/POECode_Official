@@ -1,3 +1,3 @@
 var midi = require('./midi');
 
-midi.play('tamacun.mid');
+midi.play('test.mid');

@@ -36,7 +36,7 @@ function doshit() {
   }, 500);
 }
 
-openshit();
+doshit();
 
 function openshit() {
   stringPins.forEach(function(pinList) {
