@@ -64,16 +64,6 @@ var resetState = function() {
     strumGPIO(i);
   }
   fretSPI(fretState);
-
-  stringPins.forEach(function(pinList) {
-    pinList.forEach(function(pin) {
-      gpio.open(pin, 'output pulldown', function(err) {
-        if (err) {
-          return console.error(err);
-        }
-      });
-    });
-  });
 }
 
 var strumGPIO = function(string) {
@@ -191,6 +181,8 @@ var allPinDo = function(dothis, callback) {
         gpio.close(pin, callback);
       } else if (dothis === 'open') {
         gpio.open(pin, 'output pulldown', callback);
+      } else if (dothis === 'low') {
+        gpio.write(pin, 0, callback);
       }
     });
   });
@@ -205,12 +197,29 @@ module.exports.play = function(midiPath, callback) {
   global.ticksPerBeat = midiFile.header.ticksPerBeat;
   allPinDo('close', function() {
     allPinDo('open', function() {
-      resetState();
-
-      playSong(midiFile, tempo, function(err) {
+      allPinDo('low', function() {
         resetState();
-        allPinDo('close', callback);
+
+        playSong(midiFile, tempo, function(err) {
+          resetState();
+          allPinDo('close', callback);
+        });
       });
-    })
+    });
   });
 }
+
+function exitHandler() {
+  allPinDo('low', function() {
+    allPinDo('close');
+  });
+}
+
+//do something when app is closing
+process.on('exit', exitHandler);
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler);
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler);
