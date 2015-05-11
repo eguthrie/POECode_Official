@@ -1,8 +1,8 @@
 var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
-// var gpio = require('pi-gpio');
-// var spi = require('pi-spi').initialize('/dev/spidev0.0');
+var gpio = require('pi-gpio');
+var spi = require('pi-spi').initialize('/dev/spidev0.0');
 
 // make note mappings
 var notes = {
@@ -44,13 +44,52 @@ var notes = {
   69: 0b00001000000000000000000000000000,// A
 };
 
+var strings = {
+  // EADGBE
+  40: 5,// E
+  41: 5,// F
+  42: 5,// F#
+  43: 5,// G
+  44: 5,// G#
+//     E|   B|   G|   D|   A|   E|    |
+  45: 4,// A
+  46: 4,// A#
+  47: 4,// B
+  48: 4,// C
+  49: 4,// C#
+//     E|   B|   G|   D|   A|   E|    |
+  50: 3,// D
+  51: 3,// D#
+  52: 3,// E
+  53: 3,// F
+  54: 3,// F#
+//     E|   B|   G|   D|   A|   E|    |
+  55: 2,// G
+  56: 2,// G#
+  57: 2,// A
+  58: 2,// A#
+//     E|   B|   G|   D|   A|   E|    |
+  59: 1,// B
+  60: 1,// C
+  61: 1,// C#
+  62: 1,// D
+  63: 1,// D#
+//     E|   B|   G|   D|   A|   E|    |
+  64: 0,// E
+  65: 0,// F
+  66: 0,// F#
+  67: 0,// G
+  68: 0,// G#
+  69: 0,// A
+};
+
 var fretState;
 var strumState; // high on left, low on right
 var stringPins; // can add more for B+
 
 var resetState = function() {
   fretState = 0x00000000;
-  strumState = [true, true, true, true, true, true]; // high on left, low on right
+  strumState = [0, 0, 0, 0, 0, 0]; // high on left, low on right
   stringPins = [
     [3, 5],
     [7, 8],
@@ -58,34 +97,22 @@ var resetState = function() {
     [12, 13],
     [15, 16],
     [18, 22]
-  ]; // can add more for B+
+  ];
 
-  for (var i = 0; i < stringPins.length; i++) {
-    strumGPIO(i);
-  }
   fretSPI(fretState);
-
-  stringPins.forEach(function(pinList) {
-    pinList.forEach(function(pin) {
-      gpio.open(pin, 'output pulldown', function(err) {
-        if (err) {
-          return console.error(err);
-        }
-      });
-    });
-  });
 }
 
 var strumGPIO = function(string) {
-  var pos = strumFromState(strumState[string]);
-  var pins = stringPins[string];
+  var pin = stringPins[string][strumState[string]];
 
-  console.log('strumState:', pins, pos);
-  for (var i = 0; i < pos.length; i++) {
-    gpio.write(pins[i], pos[i], function() {});
-  }
+  console.log('Strumming pin:', pin);
+  gpio.write(pin, 1, function() {
+    setTimeout(function() {
+      gpio.write(pin, 0);
+    }, 50);
+  });
 
-  strumState[string] = !strumState[string];
+  strumState[string] = strumState[string] === 1? 0 : 1;
 }
 
 var fretSPI = function(state) {
@@ -103,26 +130,6 @@ var fretSPI = function(state) {
       return console.error(err);
     }
   });
-}
-
-var strumFromState = function(state) {
-  switch(state) {
-    case  true: return [0, 1];
-    case false: return [1, 0];
-  }
-}
-
-var stringFromNote = function(noteNum) {
-  var stringMask = 0b11111 << 2;
-  for (var i = 0; i < 5; i++) {
-    if (noteNum & stringMask) {
-      return i;
-    }
-
-    stringMask <<= 5;
-  }
-  console.log("Note wasn't on a string.");
-  return -1;
 }
 
 //tempo is micros/beat for whatever the time signature says a beat is
@@ -164,7 +171,7 @@ var handleMidiEvent = function(track, tempo, index, callback) {
       fretSPI(fretState);
 
       if (subtype === 'noteOn') {
-        strumGPIO(stringFromNote(noteNumber));
+        strumGPIO(strings[noteNumber]);
       }
     }
   }
@@ -184,25 +191,58 @@ var playSong = function(midiFile, tempo, callback) {
   handleMidiEvent(midiFile.tracks[1], tempo, 0, callback)
 }
 
+var allPinDo = function(dothis, callback) {
+  stringPins.forEach(function(pinList) {
+    pinList.forEach(function(pin) {
+      console.log('=====================');
+      console.log(pin);
+      if (dothis === 'close') {
+        gpio.close(pin);
+      } else if (dothis === 'open') {
+        gpio.open(pin, 'output pulldown');
+      } else if (dothis === 'low') {
+        gpio.write(pin, 0);
+      }
+    });
+  });
+  setTimeout(callback, 200);
+}
+
 // code starts running
 
 module.exports.play = function(midiPath, callback) {
   var midiFile = MF(fs.readFileSync(midiPath, 'binary'));
   var tempo = getTempo(midiFile);
   //calculating number of ticks in a beat
-  global.ticksPerBeat = midiFile.header.ticksPerBeat;
+  ticksPerBeat = midiFile.header.ticksPerBeat;
   resetState();
-  playSong(midiFile, tempo, function(err) {
-    resetState();
-    stringPins.forEach(function(pinList) {
-      pinList.forEach(function(pin) {
-        gpio.close(pin, 'output pulldown', function(err) {
-          if (err) {
-            return console.error(err);
-          }
-        });
+  allPinDo('open', function() {
+    allPinDo('low', function() {
+
+      playSong(midiFile, tempo, function(err) {
+        resetState();
+        allPinDo('close', callback);
       });
     });
-    callback(err);
   });
 }
+<<<<<<< HEAD
+=======
+
+// set low and close GPIOs on exit
+function exitHandler() {
+  resetState();
+  allPinDo('close', function() {
+    process.exit();
+  });
+}
+
+//do something when app is closing
+process.on('exit', exitHandler);
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler);
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler);
+>>>>>>> 4217b8fef881d5c5c22f11e8f0a2e8be8ac76249
