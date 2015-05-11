@@ -64,20 +64,26 @@ var resetState = function() {
     strumGPIO(i);
   }
   fretSPI(fretState);
+
+  stringPins.forEach(function(pinList) {
+    pinList.forEach(function(pin) {
+      gpio.open(pin, 'output pulldown', function(err) {
+        if (err) {
+          return console.error(err);
+        }
+      });
+    });
+  });
 }
 
 var strumGPIO = function(string) {
   var pos = strumFromState(strumState[string]);
   var pins = stringPins[string];
 
-  // console.log('strumState:', pins, pos);
-  // for (var i = 0; i < pos.length; i++) {
-  //   gpio.open(pins[i], 'output', function(err) {
-  //     gpio.write(pins[i], pos[i], function() {
-  //       gpio.close(pins[i]);
-  //     });
-  //   });
-  // }
+  console.log('strumState:', pins, pos);
+  for (var i = 0; i < pos.length; i++) {
+    gpio.write(pins[i], pos[i], function() {});
+  }
 
   strumState[string] = !strumState[string];
 }
@@ -188,6 +194,15 @@ module.exports.play = function(midiPath, callback) {
   resetState();
   playSong(midiFile, tempo, function(err) {
     resetState();
+    stringPins.forEach(function(pinList) {
+      pinList.forEach(function(pin) {
+        gpio.close(pin, 'output pulldown', function(err) {
+          if (err) {
+            return console.error(err);
+          }
+        });
+      });
+    });
     callback(err);
   });
 }
