@@ -226,15 +226,14 @@ module.exports.play = function(midiPath, callback) {
     });
   });
 }
-<<<<<<< HEAD
-=======
 
 // set low and close GPIOs on exit
 function exitHandler() {
   resetState();
-  allPinDo('close', function() {
-    process.exit();
-  });
+  process.exit();
+  // allPinDo('close', function() {
+  //   process.exit();
+  // });
 }
 
 //do something when app is closing
@@ -245,4 +244,3 @@ process.on('SIGINT', exitHandler);
 
 //catches uncaught exceptions
 process.on('uncaughtException', exitHandler);
->>>>>>> 4217b8fef881d5c5c22f11e8f0a2e8be8ac76249
