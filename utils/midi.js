@@ -1,7 +1,7 @@
 var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
-// var gpio = require('pi-gpio');
+var gpio = require('pi-gpio');
 var spi = require('pi-spi').initialize('/dev/spidev0.0');
 
 // make note mappings
@@ -46,12 +46,12 @@ var notes = {
 
 var fretState;
 var strumState; // high on left, low on right
-global.stringPins; // can add more for B+
+stringPins; // can add more for B+
 
 var resetState = function() {
   fretState = 0x00000000;
   strumState = [0, 0, 0, 0, 0, 0]; // high on left, low on right
-  global.stringPins = [
+  stringPins = [
     [3, 5],
     [7, 8],
     [10, 11],
@@ -60,14 +60,14 @@ var resetState = function() {
     [18, 22]
   ];
 
-  for (var i = 0; i < global.stringPins.length; i++) {
+  for (var i = 0; i < stringPins.length; i++) {
     strumGPIO(i);
   }
   fretSPI(fretState);
 }
 
 var strumGPIO = function(string) {
-  var pin = global.stringPins[string][strumState[string]];
+  var pin = stringPins[string][strumState[string]];
 
   console.log('Strumming pin:', pin);
   gpio.write(pin, 1, function() {
@@ -169,7 +169,7 @@ var playSong = function(midiFile, tempo, callback) {
 }
 
 var allPinDo = function(dothis, callback) {
-  global.stringPins.forEach(function(pinList) {
+  stringPins.forEach(function(pinList) {
     pinList.forEach(function(pin) {
       if (dothis === 'close') {
         gpio.close(pin, callback);
@@ -188,7 +188,7 @@ module.exports.play = function(midiPath, callback) {
   var midiFile = MF(fs.readFileSync(midiPath, 'binary'));
   var tempo = getTempo(midiFile);
   //calculating number of ticks in a beat
-  global.ticksPerBeat = midiFile.header.ticksPerBeat;
+  ticksPerBeat = midiFile.header.ticksPerBeat;
   allPinDo('close', function() {
     allPinDo('open', function() {
       allPinDo('low', function() {
