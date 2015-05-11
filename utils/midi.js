@@ -46,12 +46,12 @@ var notes = {
 
 var fretState;
 var strumState; // high on left, low on right
-var stringPins; // can add more for B+
+global.stringPins; // can add more for B+
 
 var resetState = function() {
   fretState = 0x00000000;
   strumState = [0, 0, 0, 0, 0, 0]; // high on left, low on right
-  stringPins = [
+  global.stringPins = [
     [3, 5],
     [7, 8],
     [10, 11],
@@ -60,14 +60,14 @@ var resetState = function() {
     [18, 22]
   ];
 
-  for (var i = 0; i < stringPins.length; i++) {
+  for (var i = 0; i < global.stringPins.length; i++) {
     strumGPIO(i);
   }
   fretSPI(fretState);
 }
 
 var strumGPIO = function(string) {
-  var pin = stringPins[string][strumState[string]];
+  var pin = global.stringPins[string][strumState[string]];
 
   console.log('Strumming pin:', pin);
   gpio.write(pin, 1, function() {
@@ -169,7 +169,7 @@ var playSong = function(midiFile, tempo, callback) {
 }
 
 var allPinDo = function(dothis, callback) {
-  stringPins.forEach(function(pinList) {
+  global.stringPins.forEach(function(pinList) {
     pinList.forEach(function(pin) {
       if (dothis === 'close') {
         gpio.close(pin, callback);
