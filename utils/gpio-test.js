@@ -11,7 +11,7 @@ stringPins = [
 
 stringPins.forEach(function(pinList) {
   pinList.forEach(function(pin) {
-    gpio.close(pin, 'output pulldown', function(err) {
+    gpio.write(pin, 1, function(err) {
       if (err) {
         return console.error(err);
       }

@@ -184,6 +184,18 @@ var playSong = function(midiFile, tempo, callback) {
   handleMidiEvent(midiFile.tracks[1], tempo, 0, callback)
 }
 
+var allPinDo = function(dothis, callback) {
+  stringPins.forEach(function(pinList) {
+    pinList.forEach(function(pin) {
+      if (dothis === 'close') {
+        gpio.close(pin, callback);
+      } else if (dothis === 'open') {
+        gpio.open(pin, 'output pulldown', callback);
+      }
+    });
+  });
+}
+
 // code starts running
 
 module.exports.play = function(midiPath, callback) {
@@ -191,18 +203,14 @@ module.exports.play = function(midiPath, callback) {
   var tempo = getTempo(midiFile);
   //calculating number of ticks in a beat
   global.ticksPerBeat = midiFile.header.ticksPerBeat;
-  resetState();
-  playSong(midiFile, tempo, function(err) {
-    resetState();
-    stringPins.forEach(function(pinList) {
-      pinList.forEach(function(pin) {
-        gpio.close(pin, 'output pulldown', function(err) {
-          if (err) {
-            return console.error(err);
-          }
-        });
+  allPinDo('close', function() {
+    allPinDo('open', function() {
+      resetState();
+
+      playSong(midiFile, tempo, function(err) {
+        resetState();
+        allPinDo('close', callback);
       });
-    });
-    callback(err);
+    })
   });
 }
