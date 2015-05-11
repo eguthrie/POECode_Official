@@ -109,7 +109,7 @@ var strumGPIO = function(string) {
   gpio.write(pin, 1, function() {
     setTimeout(function() {
       gpio.write(pin, 0);
-    }, 50);
+    }, 80);
   });
 
   strumState[string] = strumState[string] === 1? 0 : 1;
