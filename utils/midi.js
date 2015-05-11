@@ -163,14 +163,15 @@ var handleMidiEvent = function(track, tempo, index, callback) {
   }
   if (type === "channel" && (subtype === 'noteOn' || subtype === 'noteOff')){
     var note = notes[noteNumber];
-    if (note) {
+    if (note !== undefined) {
       if (subtype === 'noteOn') {
         fretState |= note;
       } else {
         fretState ^= note;
       }
+      console.log("Note", noteNumber);
+      //console.log("Type", subtype);
       if (subtype === 'noteOn') {
-        console.log("Note", noteNumber);
         console.log("Strumming String", strings[noteNumber]);
         strumGPIO(strings[noteNumber]);
       }
