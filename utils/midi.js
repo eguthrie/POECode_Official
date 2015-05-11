@@ -50,7 +50,7 @@ var stringPins; // can add more for B+
 
 var resetState = function() {
   fretState = 0x00000000;
-  strumState = [true, true, true, true, true, true]; // high on left, low on right
+  strumState = [0, 0, 0, 0, 0, 0]; // high on left, low on right
   stringPins = [
     [3, 5],
     [7, 8],
@@ -67,15 +67,16 @@ var resetState = function() {
 }
 
 var strumGPIO = function(string) {
-  var pos = strumFromState(strumState[string]);
-  var pins = stringPins[string];
+  var pin = stringPins[string][strumState[string]];
 
-  console.log('strumState:', pins, pos);
-  for (var i = 0; i < pos.length; i++) {
-    gpio.write(pins[i], pos[i], function() {});
-  }
+  console.log('Strumming pin:', pin);
+  gpio.write(pin, 1, function() {
+    setTimeout(function() {
+      gpio.write(pin, 0);
+    }, 40);
+  });
 
-  strumState[string] = !strumState[string];
+  strumState[string] = strumState[string] === 1? 0 : 1;
 }
 
 var fretSPI = function(state) {
@@ -93,13 +94,6 @@ var fretSPI = function(state) {
       return console.error(err);
     }
   });
-}
-
-var strumFromState = function(state) {
-  switch(state) {
-    case  true: return [0, 1];
-    case false: return [1, 0];
-  }
 }
 
 var stringFromNote = function(noteNum) {
@@ -209,6 +203,7 @@ module.exports.play = function(midiPath, callback) {
   });
 }
 
+// set low and close GPIOs on exit
 function exitHandler() {
   allPinDo('low', function() {
     allPinDo('close');
