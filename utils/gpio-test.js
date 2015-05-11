@@ -10,7 +10,7 @@ stringPins = [
 ];
 
 function doshit() {
-  pins = stringPins[4];
+  pins = stringPins[5];
 
   gpio.write(pins[0], 0, function(){});
 
@@ -19,6 +19,7 @@ function doshit() {
   var i = 0;
   setInterval(function() {
     if (i%2 === 0) {
+      console.log("Setting", pins[0]);
       gpio.write(pins[0], 1, function() {
         setTimeout(function() {
     gpio.write(pins[0], 0);
@@ -26,6 +27,7 @@ function doshit() {
       });
     }
     else {
+      console.log("Setting", pins[1]);
       gpio.write(pins[1], 1, function() {
         setTimeout(function() {
     gpio.write(pins[1], 0);
@@ -35,10 +37,11 @@ function doshit() {
     i++;
   }, 500);
 }
+openshit(function() {
+  doshit();
+});
 
-doshit();
-
-function openshit() {
+function openshit(callback) {
   stringPins.forEach(function(pinList) {
     pinList.forEach(function(pin) {
       console.log('==========================');
@@ -50,4 +53,5 @@ function openshit() {
       });
     });
   });
+  setTimeout(callback, 200);
 }
