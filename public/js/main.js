@@ -1,4 +1,4 @@
-var socket = io()
+var socket = io();
 
 socket.on('queue-update', function(update) {
   var songQueue = Handlebars.partials.songQueue({
@@ -7,7 +7,7 @@ socket.on('queue-update', function(update) {
   $('#song-queue-wrapper').html(songQueue);
 
   bindQueue();
-})
+});
 
 socket.on('songs-update', function(update) {
   var songThumbs = Handlebars.partials.songThumbs({
@@ -16,7 +16,7 @@ socket.on('songs-update', function(update) {
   $('#song-thumbs-wrapper').html(songThumbs);
 
   bindThumbs();
-})
+});
 
 function bindQueue() {
   $('.song-queued .remove-song').click(function(event) {
@@ -30,6 +30,7 @@ function bindQueue() {
 
 function bindThumbs() {
   $('.song-thumb .remove-song').click(function(event) {
+    event.stopPropagation();
     if(window.confirm(
         "Are you sure you want to permanently delete this song?")){
       var $song = $(this).parents(".song-thumb");
@@ -42,12 +43,12 @@ function bindThumbs() {
 
   $('.song-thumb').click(function(event) {
     var $song = $(this);
-    
+
     socket.emit('queue-add', {
       songId: $song.attr('id')
     });
   });
 }
 
-bindQueue()
-bindThumbs()
+bindQueue();
+bindThumbs();

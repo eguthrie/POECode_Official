@@ -8,7 +8,7 @@ var index = require('./routes/index');
 var song = require('./routes/song');
 
 // modules
-var midi = require('./utils/midi');
+// var midi = require('./utils/midi');
 var handleErr = require('./utils/utils').handleErr;
 
 var logger = require('morgan');
@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // routes
 app.get('/', index.home);
-app.get('/upload', index.upload)
+app.get('/upload', index.upload);
 
 //song router
 app.use('/song', song);
@@ -49,16 +49,18 @@ global.songQueue = {
   queue: [],
   getSongs: function(callback) {
     async.map(global.songQueue.queue, song.getSong, function(err, songList) {
-      if (err)
+      if (err) {
         return console.error('Async error', err);
+      }
 
       callback(err, songList);
     });
   },
   addSong: function(id) {
     var songIndex = global.songQueue.queue.indexOf(id);
-    if (songIndex === -1)
+    if (songIndex === -1) {
       global.songQueue.queue.push(id);
+    }
 
     global.songQueue.update();
   },
@@ -70,8 +72,9 @@ global.songQueue = {
 
     if (id !== global.songQueue.getPlayingSong()) {
       song.getPathById(id, function(err, path) {
-        if (err)
+        if (err) {
           return handleErr(err);
+        }
         midi.play(path);
       });
     }
@@ -83,7 +86,7 @@ global.songQueue = {
       });
     });
   }
-}
+};
 
 io.on('connection', function(socket) {
   console.log('New connection');
