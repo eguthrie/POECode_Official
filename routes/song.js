@@ -29,13 +29,20 @@ function getSpotify(name, artist, callback){
     encodeURIComponent(artist || "")+
     "'&type=track", 
     function(err, response, body) {
-      console.log(body);
       var song = {}
       var track = JSON.parse(body).tracks.items[0];
-      song.image = track.album.images[1].url;
-      song.name = track.name;
-      song.artist = track.artists[0].name;
-      callback(song);
+      if (!track){
+        song.image = "songs/notfound.png"
+        song.name = name
+        song.artist = artist
+        callback(song);
+      }
+      else {
+        song.image = track.album.images[1].url;
+        song.name = track.name;
+        song.artist = track.artists[0].name;
+        callback(song);
+      }
     });
 }
 
