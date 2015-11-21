@@ -4,6 +4,9 @@ var path = require("path");
 var gpio = require('pi-gpio');
 var spi = require('pi-spi').initialize('/dev/spidev0.0');
 
+var strumEnablePin = 31;
+var latchPin = 29;
+
 // make note mappings
 var notes = {
   // EADGBE
@@ -102,24 +105,33 @@ var resetState = function() {
   fretSPI(fretState);
 }
 
+var enableStrum = function(callback) {
+  gpio.write(strumEnablePin, 1, callback);
+};
+
+var disableStrum = function(callback) {
+  gpio.write(strumEnablePin, 0, callback);
+};
+
 var strumGPIO = function(string) {
   var pin = stringPins[string][strumState[string]];
-
-  console.log('Strumming pin:', pin);
-  gpio.write(pin, 1, function() {
-    setTimeout(function() {
-      gpio.write(pin, 0);
-    }, 80);
+  enableStrum(function() {
+    console.log('Strumming pin:', pin);
+    gpio.write(pin, 1, function() {
+      setTimeout(function() {
+        gpio.write(pin, 0, disableStrum);
+      }, 80);
+    });
   });
 
   strumState[string] = strumState[string] === 1? 0 : 1;
-}
+};
 
 var fretSPI = function(state) {
   var stateString = decbin(fretState, 32);
   var octets = [];
   for (var i = 0; i < 4; i++) {
-    octets.push(parseInt(stateString.substring(i*8, (i+1)*8), 2))
+    octets.push(parseInt(stateString.substring(i*8, (i+1)*8), 2));
   }
   console.log(octets);
   var stateBuff = Buffer(octets);
@@ -130,7 +142,7 @@ var fretSPI = function(state) {
       return console.error(err);
     }
   });
-}
+};
 
 //tempo is micros/beat for whatever the time signature says a beat is
 var getTempo = function(mf) {
@@ -139,13 +151,14 @@ var getTempo = function(mf) {
 		if (metaTick.subtype === "setTempo") {
 			return metaTick.microsecondsPerBeat;
 		}
-	};
-}
+	}
+};
 
-function decbin(dec,length){
+function decbin(dec,length) {
   var out = "";
-  while(length--)
+  while(length--) {
     out += (dec >> length ) & 1;
+  }
   return out;
 }
 
