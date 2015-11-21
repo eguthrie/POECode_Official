@@ -60,8 +60,10 @@ global.songQueue = {
     var songIndex = global.songQueue.queue.indexOf(id);
     if (songIndex === -1) {
       global.songQueue.queue.push(id);
+      if (global.songQueue.queue.length === 1){
+        playTopQueue()
+      }
     }
-
     global.songQueue.update();
   },
   removeSong: function(id) {
@@ -102,9 +104,8 @@ io.on('connection', function(socket) {
   });
 
   socket.on('song-delete', function(data) {
+    global.songQueue.removeSong(data.songId);
     song.delete(data.songId, function(err) {
-      global.songQueue.removeSong(data.songId);
-
       song.getSongs(function(err, songs) {
         io.emit('songs-update', {
           songs: songs
@@ -117,3 +118,16 @@ io.on('connection', function(socket) {
 server.listen(PORT, function() {
   console.log('App running on port',PORT);
 });
+
+function playTopQueue() {
+  topSong = global.songQueue.queue[0];
+  if (topSong){
+    midiFile = topSong.midiPath;
+    midi.play(midiFile, songFinished);
+  }
+};
+
+function songFinished() {
+  global.songQueue.removeSong(global.songQueue.queue[0]);
+  playTopQueue()
+};
