@@ -184,6 +184,9 @@ input[type=submit] {
   border: 1px solid transparent;
   margin-bottom: 0.5rem;
 }
+.song-queue .song-queued:first-child {
+  background-color: #e3f2fd;
+}
 .song-queue .song-queued h5 {
   color: #757575;
 }

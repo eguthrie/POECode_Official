@@ -1,8 +1,8 @@
 var fs = require("fs");
 var MF = require("midi-file-parser");
 var path = require("path");
-// var gpio = require('pi-gpio');
-// var spi = require('pi-spi').initialize('/dev/spidev0.0');
+var gpio = require('pi-gpio');
+var spi = require('pi-spi').initialize('/dev/spidev0.0');
 
 // make note mappings
 var notes = {
@@ -225,7 +225,7 @@ module.exports.play = function(midiPath, callback) {
 
       playSong(midiFile, tempo, function(err) {
         resetState();
-        //allPinDo('close', callback);
+        allPinDo('close', callback);
       });
     });
   });
@@ -235,9 +235,9 @@ module.exports.play = function(midiPath, callback) {
 function exitHandler() {
   resetState();
   process.exit();
-  // allPinDo('close', function() {
-  //   process.exit();
-  // });
+  allPinDo('close', function() {
+    process.exit();
+  });
 }
 
 //do something when app is closing
