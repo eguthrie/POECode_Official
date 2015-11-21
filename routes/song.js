@@ -10,7 +10,7 @@ var router = express.Router();
 router.getSongs = function(callback) {
   Song.find().sort({ name: 1 }).exec(function(err, songs) {
     if (err)
-      return handleErr(err, 'song:11');
+      return handleErr(err);
     callback(null, songs);
   });
 };
@@ -18,7 +18,7 @@ router.getSongs = function(callback) {
 router.getSong = function(id, callback) {
   Song.findOne({_id: id}).exec(function(err, song) {
     if (err)
-      return handleErr(err, 'song:19');
+      return handleErr(err);
     callback(null, song);
   })
 }
@@ -46,6 +46,12 @@ function getSpotify(name, artist, callback){
     });
 }
 
+router.getPathById = function(id, callback) {
+  router.getSong(id, function(err, song) {
+    callback(err, song.midiPath);
+  })
+}
+
 // add a new song
 router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
   var song = {};
@@ -64,7 +70,7 @@ router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
       
       new Song(song).save(function(err, newSong) {
         if (err)
-          return handleErr(err, 'song:33');
+          return handleErr(err);
         res.redirect("/");
       });
     });
@@ -75,14 +81,14 @@ router.post('/', multer({ dest: './public/songs/' }), function(req, res) {
 router.delete = function(id, callback) {
   Song.findOne({ _id: id }, function(err, song) {
     if (err)
-      return handleErr(err, 'song:64')
+      return handleErr(err)
     if (song) {
       Song.findOneAndRemove({ _id: id }, function(err) {
         if (err)
-          return handleErr(err, 'song:68')
+          return handleErr(err)
         fs.unlink(song.midiPath, function(err) {
           if (err)
-            return handleErr(err, 'song:75')
+            return handleErr(err)
           if (callback)
             callback(err, true)
         });
