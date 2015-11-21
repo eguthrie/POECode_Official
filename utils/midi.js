@@ -4,7 +4,7 @@ var path = require("path");
 var gpio = require('pi-gpio');
 var spi = require('pi-spi').initialize('/dev/spidev0.0');
 
-var strumEnablePin = 31;
+var strumEnablePin = 33;
 var latchPin = 29;
 
 // make note mappings
@@ -88,20 +88,27 @@ var strings = {
 
 var fretState;
 var strumState; // high on left, low on right
-var stringPins; // can add more for B+
+var stringPins = [
+  [3, 5],
+  [7, 8],
+  [10, 11],
+  [12, 13],
+  [15, 16],
+  [18, 22]
+];
+
+var allPins = stringPins.reduce(function(a, b) {
+  return a.concat(b);
+});
+
+allPins.push(strumEnablePin);
+allPins.push(latchPin);
+
+console.log("Pins in use", allPins);
 
 var resetState = function() {
   fretState = 0x00000000;
   strumState = [0, 0, 0, 0, 0, 0]; // high on left, low on right
-  stringPins = [
-    [3, 5],
-    [7, 8],
-    [10, 11],
-    [12, 13],
-    [15, 16],
-    [18, 22]
-  ];
-
   fretSPI(fretState);
 }
 
@@ -137,11 +144,14 @@ var fretSPI = function(state) {
   var stateBuff = Buffer(octets);
   console.log('fretStateString:', decbin(fretState, 32));
   console.log('fretState:', stateBuff);
-  spi.transfer(stateBuff, stateBuff.length, function(err) {
-    if (err) {
-      return console.error(err);
-    }
-  });
+  gpio.write(latchPin, 0, function() {
+    spi.transfer(stateBuff, stateBuff.length, function(err) {
+      gpio.write(latchPin, 1);
+      if (err) {
+        return console.error(err);
+      }
+    });
+  })
 };
 
 //tempo is micros/beat for whatever the time signature says a beat is
@@ -168,10 +178,14 @@ var handleMidiEvent = function(track, tempo, index, callback) {
   var type = midiTick.type;
   var subtype = midiTick.subtype;
   var noteNumber = midiTick.noteNumber;
+  var done = false;
 
   if (type === "meta") {
     if (subtype === "endOfTrack") {
-      return callback(null);
+      done = true;
+      if (typeof callback === "function") {
+        return callback(null);
+      }
     }
   }
   if (type === "channel" && (subtype === 'noteOn' || subtype === 'noteOff')){
@@ -193,35 +207,36 @@ var handleMidiEvent = function(track, tempo, index, callback) {
     }
   }
 
-  var midiTickNext = track[index+1];
+  if (!done) {
+    var midiTickNext = track[index+1];
 
-  var deltaTimeTicks = midiTickNext.deltaTime; // number of ticks since last event
-  var waitMillis = (tempo/ticksPerBeat)*deltaTimeTicks/1000;
+    var deltaTimeTicks = midiTickNext.deltaTime; // number of ticks since last event
+    var waitMillis = (tempo/ticksPerBeat)*deltaTimeTicks/1000;
 
-  setTimeout(function() {
-    handleMidiEvent(track, tempo, index+1)
-  }, waitMillis);
+    setTimeout(function() {
+      handleMidiEvent(track, tempo, index+1, callback);
+    }, waitMillis);
+  }
 }
 
 //generating output of the note
 var playSong = function(midiFile, tempo, callback) {
-  handleMidiEvent(midiFile.tracks[1], tempo, 0, callback)
+  handleMidiEvent(midiFile.tracks[1], tempo, 0, callback);
 }
 
 var allPinDo = function(dothis, callback) {
-  stringPins.forEach(function(pinList) {
-    pinList.forEach(function(pin) {
-      console.log('=====================');
-      console.log(pin);
-      if (dothis === 'close') {
-        gpio.close(pin);
-      } else if (dothis === 'open') {
-        gpio.open(pin, 'output pulldown');
-      } else if (dothis === 'low') {
-        gpio.write(pin, 0);
-      }
-    });
+  console.log("==== All pin start ====");
+  allPins.forEach(function(pin) {
+    console.log(dothis, pin);
+    if (dothis === 'close') {
+      gpio.close(pin);
+    } else if (dothis === 'open') {
+      gpio.open(pin, 'output pulldown');
+    } else if (dothis === 'low') {
+      gpio.write(pin, 0);
+    }
   });
+  console.log("==== All pin done ====");
   setTimeout(callback, 200);
 }
 
@@ -246,8 +261,8 @@ module.exports.play = function(midiPath, callback) {
 
 // set low and close GPIOs on exit
 function exitHandler() {
+  console.log("Exiting Safely");
   resetState();
-  process.exit();
   allPinDo('close', function() {
     process.exit();
   });
@@ -260,4 +275,7 @@ process.on('exit', exitHandler);
 process.on('SIGINT', exitHandler);
 
 //catches uncaught exceptions
-process.on('uncaughtException', exitHandler);
+process.on('uncaughtException', function(e) {
+  console.log(e);
+  exitHandler();
+});
