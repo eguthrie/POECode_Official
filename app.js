@@ -7,6 +7,10 @@ var async = require('async');
 var index = require('./routes/index');
 var song = require('./routes/song');
 
+// modules
+var midi = require('./utils/midi');
+var handleErr = require('./utils/utils').handleErr;
+
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -39,6 +43,9 @@ app.use('/song', song);
 
 // sockets
 global.songQueue = {
+  getPlayingSong: function() {
+    return global.songQueue.queue[0];
+  },
   queue: [],
   getSongs: function(callback) {
     async.map(global.songQueue.queue, song.getSong, function(err, songList) {
@@ -60,6 +67,14 @@ global.songQueue = {
     global.songQueue.queue.splice(songIndex, 1);
 
     global.songQueue.update();
+
+    if (id !== global.songQueue.getPlayingSong()) {
+      song.getPathById(id, function(err, path) {
+        if (err)
+          return handleErr(err);
+        midi.play(path);
+      });
+    }
   },
   update: function() {
     global.songQueue.getSongs(function(err, songs) {
