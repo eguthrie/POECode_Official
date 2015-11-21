@@ -3,6 +3,7 @@ var MF = require("midi-file-parser");
 var path = require("path");
 var gpio = require('pi-gpio');
 var spi = require('pi-spi').initialize('/dev/spidev0.0');
+var async = require('async');
 
 var strumEnablePin = 33;
 var latchPin = 29;
@@ -11,40 +12,40 @@ var latchPin = 29;
 var notes = {
   // EADGBE
   40: 0b00000000000000000000000000000000,// E
-  41: 0b00000000000000000000000001000000,// F
-  42: 0b00000000000000000000000000100000,// F#
-  43: 0b00000000000000000000000000010000,// G
-  44: 0b00000000000000000000000000001000,// G#
-//     E|   B|   G|   D|   A|   E|    |
+  41: 0b00000000000000000000000000100000,// F
+  42: 0b00000000000000000000000000010000,// F#
+  43: 0b00000000000000000000000000001000,// G
+  44: 0b00000000000000000000000000000100,// G#
+//     E|   B|   G|   D|   A|   E|   |
   45: 0b00000000000000000000000000000000,// A
-  46: 0b00000000000000000000100000000000,// A#
-  47: 0b00000000000000000000010000000000,// B
-  48: 0b00000000000000000000001000000000,// C
-  49: 0b00000000000000000000000100000000,// C#
-//     E|   B|   G|   D|   A|   E|    |
+  46: 0b00000000000000000000010000000000,// A#
+  47: 0b00000000000000000000001000000000,// B
+  48: 0b00000000000000000000000100000000,// C
+  49: 0b00000000000000000000000010000000,// C#
+//     E|   B|   G|   D|   A|   E|   |
   50: 0b00000000000000000000000000000000,// D
-  51: 0b00000000000000010000000000000000,// D#
-  52: 0b00000000000000001000000000000000,// E
-  53: 0b00000000000000000100000000000000,// F
-  54: 0b00000000000000000010000000000000,// F#
-//     E|   B|   G|   D|   A|   E|    |
+  51: 0b00000000000000001000000000000000,// D#
+  52: 0b00000000000000000100000000000000,// E
+  53: 0b00000000000000000010000000000000,// F
+  54: 0b00000000000000000001000000000000,// F#
+//     E|   B|   G|   D|   A|   E|   |
   55: 0b00000000000000000000000000000000,// G
-  56: 0b00000000001000000000000000000000,// G#
-  57: 0b00000000000100000000000000000000,// A
-  58: 0b00000000000010000000000000000000,// A#
-//     E|   B|   G|   D|   A|   E|    |
+  56: 0b00000000000100000000000000000000,// G#
+  57: 0b00000000000010000000000000000000,// A
+  58: 0b00000000000001000000000000000000,// A#
+//     E|   B|   G|   D|   A|   E|   |
   59: 0b00000000000000000000000000000000,// B
-  60: 0b00000100000000000000000000000000,// C
-  61: 0b00000010000000000000000000000000,// C#
-  62: 0b00000001000000000000000000000000,// D
-  63: 0b00000000100000000000000000000000,// D#
-//     E|   B|   G|   D|   A|   E|    |
+  60: 0b00000010000000000000000000000000,// C
+  61: 0b00000001000000000000000000000000,// C#
+  62: 0b00000000100000000000000000000000,// D
+  63: 0b00000000010000000000000000000000,// D#
+//     E|   B|   G|   D|   A|   E|   |
   64: 0b00000000000000000000000000000000,// E
-  65: 0b10000000000000000000000000000000,// F
-  66: 0b01000000000000000000000000000000,// F#
-  67: 0b00100000000000000000000000000000,// G
-  68: 0b00010000000000000000000000000000,// G#
-  69: 0b00001000000000000000000000000000,// A
+  65: 0b01000000000000000000000000000000,// F
+  66: 0b00100000000000000000000000000000,// F#
+  67: 0b00010000000000000000000000000000,// G
+  68: 0b00001000000000000000000000000000,// G#
+  69: 0b00000100000000000000000000000000,// A
 };
 
 var strings = {
@@ -106,10 +107,15 @@ allPins.push(latchPin);
 
 console.log("Pins in use", allPins);
 
-var resetState = function() {
+var resetState = function(callback) {
   fretState = 0x00000000;
   strumState = [0, 0, 0, 0, 0, 0]; // high on left, low on right
-  fretSPI(fretState);
+  async.each(
+    [0,1,2,3,4,5], function(string, done) {
+    strumGPIO(string, done);
+  }, function(err) {
+    fretSPI(fretState, callback);
+  });
 }
 
 var enableStrum = function(callback) {
@@ -120,13 +126,15 @@ var disableStrum = function(callback) {
   gpio.write(strumEnablePin, 0, callback);
 };
 
-var strumGPIO = function(string) {
+var strumGPIO = function(string, callback) {
   var pin = stringPins[string][strumState[string]];
   enableStrum(function() {
     console.log('Strumming pin:', pin);
     gpio.write(pin, 1, function() {
       setTimeout(function() {
-        gpio.write(pin, 0, disableStrum);
+        gpio.write(pin, 0, function() {
+          disableStrum(callback)
+        });
       }, 80);
     });
   });
@@ -134,7 +142,7 @@ var strumGPIO = function(string) {
   strumState[string] = strumState[string] === 1? 0 : 1;
 };
 
-var fretSPI = function(state) {
+var fretSPI = function(state, callback) {
   var stateString = decbin(fretState, 32);
   var octets = [];
   for (var i = 0; i < 4; i++) {
@@ -146,7 +154,11 @@ var fretSPI = function(state) {
   console.log('fretState:', stateBuff);
   gpio.write(latchPin, 0, function() {
     spi.transfer(stateBuff, stateBuff.length, function(err) {
-      gpio.write(latchPin, 1);
+      gpio.write(latchPin, 1, function() {
+        if (typeof callback === "function") {
+          callback();
+        }
+      });
       if (err) {
         return console.error(err);
       }
@@ -198,12 +210,12 @@ var handleMidiEvent = function(track, tempo, index, callback) {
       }
       console.log("Note", noteNumber);
       //console.log("Type", subtype);
-      if (subtype === 'noteOn') {
-        console.log("Strumming String", strings[noteNumber]);
-        strumGPIO(strings[noteNumber]);
-      }
-      fretSPI(fretState);
-
+      fretSPI(fretState, function() {
+        if (subtype === 'noteOn') {
+          console.log("Strumming String", strings[noteNumber]);
+          strumGPIO(strings[noteNumber]);
+        }
+      });
     }
   }
 
@@ -225,9 +237,8 @@ var playSong = function(midiFile, tempo, callback) {
 }
 
 var allPinDo = function(dothis, callback) {
-  console.log("==== All pin start ====");
+  console.log("==== All pins", dothis);
   allPins.forEach(function(pin) {
-    console.log(dothis, pin);
     if (dothis === 'close') {
       gpio.close(pin);
     } else if (dothis === 'open') {
@@ -236,24 +247,36 @@ var allPinDo = function(dothis, callback) {
       gpio.write(pin, 0);
     }
   });
-  console.log("==== All pin done ====");
   setTimeout(callback, 200);
 }
 
 // code starts running
+
+module.exports.playNote = function(noteNumber) {
+  allPinDo('open', function() {
+    resetState(function() {
+      var note = notes[noteNumber];
+      fretState |= note;
+      fretSPI(fretState, function() {
+        strumGPIO(strings[noteNumber], function() {
+          allPinDo('close');
+        });
+      });
+    });
+  });
+}
 
 module.exports.play = function(midiPath, callback) {
   var midiFile = MF(fs.readFileSync(midiPath, 'binary'));
   var tempo = getTempo(midiFile);
   //calculating number of ticks in a beat
   ticksPerBeat = midiFile.header.ticksPerBeat;
-  resetState();
   allPinDo('open', function() {
-    allPinDo('low', function() {
-
+    resetState(function() {
       playSong(midiFile, tempo, function(err) {
-        resetState();
-        allPinDo('close', callback);
+        resetState(function() {
+          allPinDo('close', callback);
+        });
       });
     });
   });
@@ -262,9 +285,10 @@ module.exports.play = function(midiPath, callback) {
 // set low and close GPIOs on exit
 function exitHandler() {
   console.log("Exiting Safely");
-  resetState();
-  allPinDo('close', function() {
-    process.exit();
+  resetState(function() {
+    allPinDo('close', function() {
+      process.exit();
+    });
   });
 }
 
