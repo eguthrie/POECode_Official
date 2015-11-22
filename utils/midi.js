@@ -285,10 +285,8 @@ module.exports.play = function(midiPath, callback) {
 // set low and close GPIOs on exit
 function exitHandler() {
   console.log("Exiting Safely");
-  resetState(function() {
-    allPinDo('close', function() {
-      process.exit();
-    });
+  allPinDo('close', function() {
+    process.exit();
   });
 }
 
