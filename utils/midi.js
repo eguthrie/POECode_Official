@@ -98,6 +98,9 @@ var stringPins = [
   [18, 22]
 ];
 
+var ticksPerBeat;
+var tempo = 600000;
+
 var allPins = stringPins.reduce(function(a, b) {
   return a.concat(b);
 });
@@ -128,8 +131,11 @@ var disableStrum = function(callback) {
 
 var strumGPIO = function(string, callback) {
   var pin = stringPins[string][strumState[string]];
+  var pinIndex = strumState[string] == 1? 0 : 1;
+  var reversePin = stringPins[string][pinIndex];
   enableStrum(function() {
-    console.log('Strumming pin:', pin);
+    // console.log('Strumming pin:', pin);
+    gpio.write(reversePin, 0);
     gpio.write(pin, 1, function() {
       setTimeout(function() {
         gpio.write(pin, 0, function() {
@@ -148,10 +154,10 @@ var fretSPI = function(state, callback) {
   for (var i = 0; i < 4; i++) {
     octets.push(parseInt(stateString.substring(i*8, (i+1)*8), 2));
   }
-  console.log(octets);
+  // console.log(octets);
   var stateBuff = Buffer(octets);
-  console.log('fretStateString:', decbin(fretState, 32));
-  console.log('fretState:', stateBuff);
+  // console.log('fretStateString:', decbin(fretState, 32));
+  // console.log('fretState:', stateBuff);
   gpio.write(latchPin, 0, function() {
     spi.transfer(stateBuff, stateBuff.length, function(err) {
       gpio.write(latchPin, 1, function() {
@@ -166,16 +172,6 @@ var fretSPI = function(state, callback) {
   })
 };
 
-//tempo is micros/beat for whatever the time signature says a beat is
-var getTempo = function(mf) {
-	for (var i = 0; i < mf.tracks[0].length; i++) {
-		var metaTick = mf.tracks[0][i];
-		if (metaTick.subtype === "setTempo") {
-			return metaTick.microsecondsPerBeat;
-		}
-	}
-};
-
 function decbin(dec,length) {
   var out = "";
   while(length--) {
@@ -184,8 +180,8 @@ function decbin(dec,length) {
   return out;
 }
 
-var handleMidiEvent = function(track, tempo, index, callback) {
-  console.log("====Event====");
+var handleMidiEvent = function(track, index, callback) {
+  // console.log("====Event====");
   var midiTick = track[index];
   var type = midiTick.type;
   var subtype = midiTick.subtype;
@@ -200,6 +196,7 @@ var handleMidiEvent = function(track, tempo, index, callback) {
       }
     }
   }
+  //TODO: Instead of watching noteOff events, change notes next time string is used again.
   if (type === "channel" && (subtype === 'noteOn' || subtype === 'noteOff')){
     var note = notes[noteNumber];
     if (note !== undefined) {
@@ -208,15 +205,19 @@ var handleMidiEvent = function(track, tempo, index, callback) {
       } else {
         fretState ^= note;
       }
-      console.log("Note", noteNumber);
+      // console.log("Note", noteNumber);
       //console.log("Type", subtype);
       fretSPI(fretState, function() {
         if (subtype === 'noteOn') {
-          console.log("Strumming String", strings[noteNumber]);
+          // console.log("Strumming String", strings[noteNumber]);
           strumGPIO(strings[noteNumber]);
         }
       });
     }
+  }
+
+  if (subtype === "setTempo") {
+    tempo = midiTick.microsecondsPerBeat;
   }
 
   if (!done) {
@@ -224,16 +225,18 @@ var handleMidiEvent = function(track, tempo, index, callback) {
 
     var deltaTimeTicks = midiTickNext.deltaTime; // number of ticks since last event
     var waitMillis = (tempo/ticksPerBeat)*deltaTimeTicks/1000;
-
     setTimeout(function() {
-      handleMidiEvent(track, tempo, index+1, callback);
+      handleMidiEvent(track, index+1, callback);
     }, waitMillis);
   }
 }
 
 //generating output of the note
-var playSong = function(midiFile, tempo, callback) {
-  handleMidiEvent(midiFile.tracks[1], tempo, 0, callback);
+var playSong = function(midiFile, callback) {
+  //set meta
+  handleMidiEvent(midiFile.tracks[0], 0);
+  //play song
+  handleMidiEvent(midiFile.tracks[1], 0, callback);
 }
 
 var allPinDo = function(dothis, callback) {
@@ -268,12 +271,11 @@ module.exports.playNote = function(noteNumber) {
 
 module.exports.play = function(midiPath, callback) {
   var midiFile = MF(fs.readFileSync(midiPath, 'binary'));
-  var tempo = getTempo(midiFile);
   //calculating number of ticks in a beat
   ticksPerBeat = midiFile.header.ticksPerBeat;
   allPinDo('open', function() {
     resetState(function() {
-      playSong(midiFile, tempo, function(err) {
+      playSong(midiFile, function(err) {
         resetState(function() {
           allPinDo('close', callback);
         });
